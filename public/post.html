@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <title>جاري التحميل... - رشاد(الموقع الرسمي)</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico?v=2" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header__inner">
+      <a href="/" class="header__logo">رشاد(الموقع الرسمي)</a>
+      
+      <nav class="nav">
+        <button class="nav__toggle" id="navToggle" aria-label="فتح القائمة">
+          <span class="nav__toggle-icon"></span>
+        </button>
+        
+        <ul class="nav__links" id="navLinks">
+          <li><a href="/" class="nav__link">الرئيسية</a></li>
+          <li><a href="/#articles" class="nav__link">المقالات</a></li>
+          <li><a href="/#research" class="nav__link">الأبحاث</a></li>
+          <li><a href="/#quotes" class="nav__link">الحكم</a></li>
+        </ul>
+        
+        <div class="nav__auth" id="navAuth">
+          <!-- Dynamically populated based on auth state -->
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Post Container - Populated by JavaScript -->
+    <article class="post" id="postContainer">
+      <div class="loading">
+        <div class="loading__spinner"></div>
+      </div>
+    </article>
+
+    <!-- Comments Section -->
+    <section class="comments" id="commentsSection" style="display: none;">
+      <h2 class="comments__title">النقاش</h2>
+      
+      <!-- Comment Form (shown only when logged in) -->
+      <div class="comments__form" id="commentFormContainer" style="display: none;">
+        <form id="commentForm">
+          <div class="form-group">
+            <label class="form-label" for="commentContent">شارك أفكارك</label>
+            <textarea 
+              id="commentContent" 
+              class="form-textarea" 
+              placeholder="اكتب تعليقاً مفيداً..."
+              rows="4"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary" id="commentSubmitBtn">نشر التعليق</button>
+        </form>
+      </div>
+      
+      <!-- Login prompt (shown when not logged in) -->
+      <div id="loginPrompt" class="empty" style="display: none;">
+        <p class="empty__title">انضم إلى الحوار</p>
+        <p class="empty__description">
+          <a href="/login">سجل دخولك</a> أو <a href="/register">أنشئ حساباً</a> لترك تعليق.
+        </p>
+      </div>
+      
+      <!-- Comments List -->
+      <div id="commentsList">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div>
+        <div class="footer__brand">رشاد(الموقع الرسمي)</div>
+        <p class="footer__description">
+          ملاذ للتأمل والاستكشاف الفكري.
+        </p>
+      </div>
+      
+      <div>
+        <h4 class="footer__title">المحتوى</h4>
+        <ul class="footer__links">
+          <li><a href="/#articles" class="footer__link">المقالات</a></li>
+          <li><a href="/#research" class="footer__link">الأبحاث</a></li>
+          <li><a href="/#quotes" class="footer__link">الحكم</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 class="footer__title">الحساب</h4>
+        <ul class="footer__links">
+          <li><a href="/login" class="footer__link">تسجيل الدخول</a></li>
+          <li><a href="/register" class="footer__link">التسجيل الجديد</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer__bottom">
+      <span>&copy; 2024 رشاد(الموقع الرسمي). جميع الحقوق محفوظة.</span>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Get post ID from URL
+    const postId = window.location.pathname.split('/').pop();
+    let currentPost = null;
+    
+    // Load post on page load
+    async function loadPost() {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        
+        const response = await fetch(`/api/posts/${postId}`, { headers });
+        
+        if (!response.ok) {
+          throw new Error('لم يتم العثور على المقال');
+        }
+        
+        const data = await response.json();
+        currentPost = data.post;
+        
+        renderPost(currentPost);
+        renderComments(currentPost.comments || []);
+        
+        // Update page title
+        document.title = `${currentPost.title} - رشاد(الموقع الرسمي)`;
+        
+        // Show comments section
+        document.getElementById('commentsSection').style.display = 'block';
+        
+        // Show/hide comment form based on auth
+        if (token) {
+          document.getElementById('commentFormContainer').style.display = 'block';
+          document.getElementById('loginPrompt').style.display = 'none';
+        } else {
+          document.getElementById('commentFormContainer').style.display = 'none';
+          document.getElementById('loginPrompt').style.display = 'block';
+        }
+        
+      } catch (error) {
+        document.getElementById('postContainer').innerHTML = `
+          <div class="empty">
+            <div class="empty__icon">📄</div>
+            <h2 class="empty__title">لم يتم العثور على المقال</h2>
+            <p class="empty__description">المقال الذي تبحث عنه غير موجود أو تم حذفه.</p>
+            <a href="/" class="btn btn--primary mt-8">العودة إلى الرئيسية</a>
+          </div>
+        `;
+      }
+    }
+    
+    // Render post content
+    function renderPost(post) {
+      const isQuote = post.category === 'Quote';
+      const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      let content = '';
+      
+      if (isQuote) {
+        content = `
+          <header class="post__header">
+            <span class="post__category">${post.category}</span>
+            <blockquote class="card--quote card__quote" style="font-size: 2rem; padding: 2rem 0;">
+              "${post.content}"
+            </blockquote>
+            ${post.quoteAuthor ? `<p style="font-size: 1.25rem; color: var(--color-text-muted);">— ${post.quoteAuthor}</p>` : ''}
+            <div class="post__meta" style="margin-top: 2rem;">
+              <span class="post__meta-item">Posted by ${post.authorName}</span>
+              <span class="post__meta-item">${formattedDate}</span>
+              <span class="post__meta-item">${post.views} views</span>
+            </div>
+          </header>
+        `;
+      } else {
+        content = `
+          <header class="post__header">
+            <span class="post__category">${post.category}</span>
+            <h1 class="post__title">${escapeHtml(post.title)}</h1>
+            <div class="post__meta">
+              <span class="post__meta-item">By ${post.authorName}</span>
+              <span class="post__meta-item">${formattedDate}</span>
+              <span class="post__meta-item">${post.views} views</span>
+            </div>
+          </header>
+          
+          ${post.coverImage ? `
+            <div class="post__cover">
+              <img src="${post.coverImage}" alt="${escapeHtml(post.title)}">
+            </div>
+          ` : ''}
+          
+          ${post.abstract ? `
+            <div class="container container--prose" style="margin-bottom: 2rem;">
+              <div style="background: var(--color-surface-alt); padding: 1.5rem; border-radius: 0.5rem;">
+                <strong>Abstract:</strong> ${escapeHtml(post.abstract)}
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="post__content">
+            ${formatContent(post.content)}
+          </div>
+        `;
+      }
+      
+      // Add post actions
+      content += `
+        <div class="post__actions">
+          <button class="post__action ${post.isLiked ? 'post__action--liked' : ''}" id="likeBtn" onclick="toggleLike()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="${post.isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="likeCount">${post.likeCount}</span> Likes
+          </button>
+          <span class="post__action" style="cursor: default;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>${post.commentCount}</span> Comments
+          </span>
+        </div>
+      `;
+      
+      document.getElementById('postContainer').innerHTML = content;
+    }
+    
+    // Format content with basic markdown-like parsing
+    function formatContent(content) {
+      // Escape HTML first
+      let formatted = escapeHtml(content);
+      
+      // Convert line breaks to paragraphs
+      const paragraphs = formatted.split('\n\n').filter(p => p.trim());
+      formatted = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      
+      return formatted;
+    }
+    
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Render comments
+    function renderComments(comments) {
+      const container = document.getElementById('commentsList');
+      
+      if (comments.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <p class="empty__title">لا توجد تعليقات حتى الآن</p>
+            <p class="empty__description">كن أول من يشارك أفكاره.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = comments.map(comment => renderComment(comment)).join('');
+    }
+    
+    // Render single comment
+    function renderComment(comment, isReply = false) {
+      const initial = comment.author?.name?.charAt(0).toUpperCase() || '?';
+      const authorName = comment.author?.name || 'Anonymous';
+      const date = new Date(comment.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const isOwner = user.id === comment.author?._id;
+      const isAdmin = user.role === 'Admin';
+      
+      return `
+        <div class="comment ${isReply ? 'comment--reply' : ''}" data-comment-id="${comment._id}">
+          <div class="comment__header">
+            <div class="comment__avatar">${initial}</div>
+            <div>
+              <span class="comment__author">${escapeHtml(authorName)}</span>
+              ${comment.edited ? '<span class="badge" style="margin-left: 0.5rem;">edited</span>' : ''}
+              <span class="comment__date">${date}</span>
+            </div>
+          </div>
+          <div class="comment__content">${escapeHtml(comment.content)}</div>
+          <div class="comment__actions">
+            ${localStorage.getItem('token') ? `
+              <button class="comment__action" onclick="replyToComment('${comment._id}', '${escapeHtml(authorName)}')">Reply</button>
+            ` : ''}
+            ${isOwner || isAdmin ? `
+              <button class="comment__action" onclick="deleteComment('${comment._id}')">Delete</button>
+            ` : ''}
+          </div>
+          ${comment.replies && comment.replies.length > 0 ? 
+            comment.replies.map(reply => renderComment(reply, true)).join('') : ''}
+        </div>
+      `;
+    }
+    
+    // Toggle like on post
+    async function toggleLike() {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        showToast('Please sign in to like posts', 'warning');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/posts/${postId}/like`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        
+        // Update UI
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
+        
+        if (data.isLiked) {
+          likeBtn.classList.add('post__action--liked');
+        } else {
+          likeBtn.classList.remove('post__action--liked');
+        }
+        
+        likeCount.textContent = data.likeCount;
+        
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+    
+    // Reply to comment
+    let replyingTo = null;
+    
+    function replyToComment(commentId, authorName) {
+      replyingTo = commentId;
+      const textarea = document.getElementById('commentContent');
+      textarea.placeholder = `Replying to ${authorName}...`;
+      textarea.focus();
+      
+      // Add cancel reply button if not exists
+      if (!document.getElementById('cancelReply')) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancelReply';
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'btn btn--ghost';
+        cancelBtn.textContent = 'Cancel Reply';
+        cancelBtn.style.marginLeft = '0.5rem';
+        cancelBtn.onclick = cancelReply;
+        document.getElementById('commentSubmitBtn').after(cancelBtn);
+      }
+    }
+    
+    function cancelReply() {
+      replyingTo = null;
+      document.getElementById('commentContent').placeholder = 'Write a thoughtful comment...';
+      const cancelBtn = document.getElementById('cancelReply');
+      if (cancelBtn) cancelBtn.remove();
+    }
+    
+    // Delete comment
+    async function deleteComment(commentId) {
+      if (!confirm('Are you sure you want to delete this comment?')) return;
+      
+      try {
+        const response = await fetch(`/api/comments/${commentId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        
+        showToast('Comment deleted', 'success');
+        loadPost(); // Reload to refresh comments
+        
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+    
+    // Comment form submission
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const content = document.getElementById('commentContent').value.trim();
+      const submitBtn = document.getElementById('commentSubmitBtn');
+      
+      if (!content) return;
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Posting...';
+      
+      try {
+        const response = await fetch('/api/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            content,
+            postId,
+            parentCommentId: replyingTo
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        
+        showToast('Comment posted!', 'success');
+        document.getElementById('commentContent').value = '';
+        cancelReply();
+        loadPost(); // Reload to show new comment
+        
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Post Comment';
+      }
+    });
+    
+    // Initialize
+    loadPost();
+  </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="أنشئ حسابك في رشاد(الموقع الرسمي)">
+  <title>إنشاء حساب - رشاد(الموقع الرسمي)</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico?v=2" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <main class="auth">
+    <div class="auth__card">
+      <div class="auth__header">
+        <a href="/" class="auth__logo">رشاد(الموقع الرسمي)</a>
+        <h1 class="auth__title">انضم إلى الحوار</h1>
+        <p class="auth__subtitle">أنشئ حساباً للتفاعل مع المحتوى الفلسفي</p>
+      </div>
+      
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label" for="name">الاسم الكامل</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-input" 
+            placeholder="اسمك"
+            required
+            autocomplete="name"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="email">بريد إلكتروني</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="password">كلمة المرور</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-input" 
+            placeholder="أنشئ كلمة مرور (6 أحرف على الأقل)"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">تأكيد كلمة المرور</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            class="form-input" 
+            placeholder="أعد إدخال كلمة المرور"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="bio">نبذة عنك (اختياري)</label>
+          <textarea 
+            id="bio" 
+            name="bio" 
+            class="form-textarea" 
+            placeholder="أخبرنا عن نفسك..."
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div id="formError" class="form-error hidden"></div>
+        
+        <button type="submit" class="btn btn--primary btn--lg" style="width: 100%;" id="submitBtn">
+          إنشاء حساب
+        </button>
+      </form>
+      
+      <div class="auth__footer">
+        <p>هل لديك حساب بالفعل؟ <a href="/login">سجل دخولك</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Register form handler
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const bio = document.getElementById('bio').value;
+      const submitBtn = document.getElementById('submitBtn');
+      const formError = document.getElementById('formError');
+      
+      // Reset error
+      formError.classList.add('hidden');
+      formError.textContent = '';
+      
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        formError.textContent = 'كلمات المرور غير متطابقة.';
+        formError.classList.remove('hidden');
+        return;
+      }
+      
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'جاري إنشاء الحساب...';
+      
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, password, bio })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'فشل التسجيل');
+        }
+        
+        // Store token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Show success message
+        showToast('تم إنشاء الحساب بنجاح! سيعاد توجيهك...', 'success');
+        
+        // Redirect to home
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+        
+      } catch (error) {
+        formError.textContent = error.message;
+        formError.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'إنشاء حساب';
+      }
+    });
+    
+    // Redirect if already logged in
+    if (localStorage.getItem('token')) {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
