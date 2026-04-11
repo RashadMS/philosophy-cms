@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="منصة لمقالات فلسفية وأبحاث أكاديمية وحكمة خالدة.">
+  <title>رشاد(الموقع الرسمي) - مقالات وأبحاث وحكمة</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico?v=2" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header__inner">
+      <a href="/" class="header__logo">رشاد(الموقع الرسمي)</a>
+      
+      <nav class="nav">
+        <button class="nav__toggle" id="navToggle" aria-label="فتح القائمة">
+          <span class="nav__toggle-icon"></span>
+        </button>
+        
+        <ul class="nav__links" id="navLinks">
+          <li><a href="/" class="nav__link nav__link--active">الرئيسية</a></li>
+          <li><a href="#articles" class="nav__link" data-category="Article">المقالات</a></li>
+          <li><a href="#research" class="nav__link" data-category="Research">الأبحاث</a></li>
+          <li><a href="#quotes" class="nav__link" data-category="Quote">الحكم</a></li>
+        </ul>
+        
+        <div class="nav__auth" id="navAuth">
+          <!-- Dynamically populated based on auth state -->
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero__title">أفكار تُخلَّد في الزمن</h1>
+      <p class="hero__subtitle">
+        استكشاف أعماق الفكر الفلسفي والبحث الأكاديمي والحكمة الخالدة 
+        من خلال مقالات مدروسة بعناية واقتباسات منتقاة.
+      </p>
+      <div class="hero__actions">
+        <a href="#articles" class="btn btn--primary btn--lg">استكشف المقالات</a>
+        <a href="#quotes" class="btn btn--secondary btn--lg">تصفح الحِكَم</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Section -->
+  <section class="section section--alt" id="featured">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">الأعمال المختارة</h2>
+        <p class="section__subtitle">اختيارات مميزة لعمقها وأهميتها وتأثيرها الدائم.</p>
+      </div>
+      
+      <div class="grid grid--3" id="featuredPosts">
+        <!-- Dynamically populated -->
+        <div class="loading">
+          <div class="loading__spinner"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Articles Section -->
+  <section class="section" id="articles">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">المقالات الفلسفية</h2>
+        <p class="section__subtitle">استكشافات طويلة للأفكار التي تشكل فهمنا للوجود.</p>
+      </div>
+      
+      <div class="grid grid--3" id="articlesPosts">
+        <!-- Dynamically populated -->
+        <div class="loading">
+          <div class="loading__spinner"></div>
+        </div>
+      </div>
+      
+      <div class="pagination" id="articlesPagination"></div>
+    </div>
+  </section>
+
+  <!-- Research Section -->
+  <section class="section section--alt" id="research">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">الأبحاث الأكاديمية</h2>
+        <p class="section__subtitle">تحقيقات عميقة في أسئلة معقدة.</p>
+      </div>
+      
+      <div class="grid grid--2" id="researchPosts">
+        <!-- Dynamically populated -->
+        <div class="loading">
+          <div class="loading__spinner"></div>
+        </div>
+      </div>
+      
+      <div class="pagination" id="researchPagination"></div>
+    </div>
+  </section>
+
+  <!-- Quotes Section -->
+  <section class="section" id="quotes">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title">كنوز الحكمة</h2>
+        <p class="section__subtitle">أفكار عميقة من عظماء العصور.</p>
+      </div>
+      
+      <div class="grid grid--3" id="quotesPosts">
+        <!-- Dynamically populated -->
+        <div class="loading">
+          <div class="loading__spinner"></div>
+        </div>
+      </div>
+      
+      <div class="pagination" id="quotesPagination"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div>
+        <div class="footer__brand">رشاد(الموقع الرسمي)</div>
+        <p class="footer__description">
+          ملاذ للتأمل والاستكشاف الفكري. 
+          ننشر محتوى يثير السؤال والتأمل.
+        </p>
+      </div>
+      
+      <div>
+        <h4 class="footer__title">المحتوى</h4>
+        <ul class="footer__links">
+          <li><a href="#articles" class="footer__link">المقالات</a></li>
+          <li><a href="#research" class="footer__link">الأبحاث</a></li>
+          <li><a href="#quotes" class="footer__link">الحِكَم</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 class="footer__title">الحساب</h4>
+        <ul class="footer__links">
+          <li><a href="/login" class="footer__link">تسجيل الدخول</a></li>
+          <li><a href="/register" class="footer__link">التسجيل الجديد</a></li>
+        </ul>
+      </div>
+      
+
+    
+    <div class="footer__bottom">
+   <span>جميع الحقوق محفوظة &copy; <span id="current-year"></span> رشاد (الموقع الرسمي)</span>
+</div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/js/theme-manager.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
