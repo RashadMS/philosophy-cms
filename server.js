@@ -23,7 +23,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// سيحاول استخدام المنفذ المتاح من الاستضافة، أو 3000، وإذا فشل سيجرب 3001
+// سيحاول استخدام المنفذ المتاح من الاستضافة، أو 3000
 const PORT = process.env.PORT || 3000;
 
 
@@ -35,9 +35,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-<<<<<<< HEAD
-// 3. الاتصال بقاعدة البيانات (استخدام متغير البيئة)
+// 3. الاتصال بقاعدة البيانات (استخدام متغير البيئة للأمان)
 const MONGODB_URI = process.env.MONGODB_URI;
+
 if (!MONGODB_URI) {
     console.error('✗ Error: MONGODB_URI is not defined in .env file');
     process.exit(1);
@@ -48,16 +48,6 @@ if (!MONGODB_URI) {
             console.error('✗ MongoDB connection error:', err);
             process.exit(1);
         });
-=======
-// 3. الاتصال بقاعدة البيانات (استخدام الرابط السحابي فقط)
-const MONGODB_URI = "mongodb+srv://rashadmsabeh:rdmh2003@cluster0.ol8fdtk.mongodb.net/philosophy_cms?retryWrites=true&w=majority";
-if (!MONGODB_URI) {
-    console.error('✗ Error: MONGODB_URI is not defined in .env file');
-} else {
-    mongoose.connect(MONGODB_URI)
-        .then(() => console.log('✓ Connected to MongoDB Atlas Successfully'))
-        .catch(err => console.error('✗ MongoDB connection error:', err));
->>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 // API Routes
