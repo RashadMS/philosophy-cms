@@ -21,14 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize navigation toggle (mobile)
   initMobileNav();
   
+<<<<<<< HEAD
   // Initialize admin theme toggle
   initAdminThemeToggle();
   
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   // Load content based on current page
   initPage();
 });
 
 // ============================================
+<<<<<<< HEAD
 // Theme Toggle (Admin)
 // ============================================
 
@@ -71,6 +75,8 @@ function updateAdminThemeToggleIcon() {
 }
 
 // ============================================
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 // Authentication
 // ============================================
 
@@ -100,10 +106,15 @@ function updateAuthUI(isLoggedIn) {
   const navAuth = document.getElementById('navAuth');
   if (!navAuth) return;
   
+<<<<<<< HEAD
   // Build auth content
   let authContent = '';
   if (isLoggedIn && currentUser) {
     authContent = `
+=======
+  if (isLoggedIn && currentUser) {
+    navAuth.innerHTML = `
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
       <div class="nav__user" style="display: flex; align-items: center; gap: 0.75rem;">
         <span style="font-size: 0.875rem; color: var(--color-text-muted);">
           ${escapeHtml(currentUser.name)}
@@ -115,11 +126,16 @@ function updateAuthUI(isLoggedIn) {
       </div>
     `;
   } else {
+<<<<<<< HEAD
     authContent = `
+=======
+    navAuth.innerHTML = `
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
       <a href="/login" class="btn btn--ghost btn--sm">تسجيل الدخول</a>
       <a href="/register" class="btn btn--primary btn--sm">انضم</a>
     `;
   }
+<<<<<<< HEAD
   
   // Add theme toggle button at the end
   navAuth.innerHTML = authContent;
@@ -129,6 +145,8 @@ function updateAuthUI(isLoggedIn) {
     const themeToggle = createThemeToggleButton();
     navAuth.appendChild(themeToggle);
   }
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 /**

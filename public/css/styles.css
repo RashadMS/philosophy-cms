@@ -88,6 +88,7 @@
 }
 
 /* ============================================
+<<<<<<< HEAD
    Dark Mode Theme
    ============================================ */
 html[data-theme="dark"] {
@@ -126,13 +127,18 @@ html[data-theme="dark"] {
 }
 
 /* ============================================
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
    Reset & Base Styles
    ============================================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+<<<<<<< HEAD
   transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 html {
@@ -140,8 +146,11 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+<<<<<<< HEAD
   overflow-x: hidden;
   transition: background-color var(--transition-base), color var(--transition-base);
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 body {
@@ -151,8 +160,11 @@ body {
   color: var(--color-text);
   background-color: var(--color-background);
   min-height: 100vh;
+<<<<<<< HEAD
   overflow-x: hidden;
   transition: background-color var(--transition-base), color var(--transition-base);
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 /* ============================================
@@ -282,6 +294,7 @@ a:hover {
   gap: var(--space-3);
 }
 
+<<<<<<< HEAD
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -312,6 +325,8 @@ a:hover {
   stroke-width: 2;
 }
 
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 /* Mobile Navigation */
 .nav__toggle {
   display: none;
@@ -351,8 +366,13 @@ a:hover {
   .nav__links {
     position: fixed;
     top: 65px;
+<<<<<<< HEAD
     inset-inline: 0;
     max-width: 100vw;
+=======
+    left: 0;
+    right: 0;
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
     background-color: var(--color-surface);
     flex-direction: column;
     padding: var(--space-6);
@@ -362,9 +382,12 @@ a:hover {
     opacity: 0;
     visibility: hidden;
     transition: all var(--transition-base);
+<<<<<<< HEAD
     overflow-y: auto;
     max-height: calc(100vh - 65px);
     box-sizing: border-box;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   }
   
   .nav__links--open {
@@ -380,6 +403,7 @@ a:hover {
     width: 100%;
     justify-content: center;
   }
+<<<<<<< HEAD
   
   /* Form Elements - Tablet */
   .form-input,
@@ -425,6 +449,8 @@ a:hover {
     min-height: 44px;
     font-size: var(--text-base);
   }
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 /* ============================================
@@ -533,7 +559,10 @@ a:hover {
 .form-textarea,
 .form-select {
   width: 100%;
+<<<<<<< HEAD
   max-width: 100%;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   padding-block: var(--space-3);
   padding-inline: var(--space-4);
   font-family: var(--font-sans);
@@ -544,7 +573,10 @@ a:hover {
   border-radius: var(--radius-base);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   text-align: end;
+<<<<<<< HEAD
   box-sizing: border-box;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .form-input:focus,
@@ -844,8 +876,11 @@ a:hover {
 .post__cover img {
   width: 100%;
   height: auto;
+<<<<<<< HEAD
   display: block;
   object-fit: cover;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .post__content {
@@ -1116,6 +1151,7 @@ a:hover {
   background-color: var(--color-accent);
 }
 
+<<<<<<< HEAD
 .admin__theme-toggle {
   display: flex;
   align-items: center;
@@ -1148,6 +1184,8 @@ a:hover {
   stroke-width: 2;
 }
 
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 .admin__main {
   flex: 1;
   margin-inline-start: 260px;
@@ -1248,6 +1286,7 @@ a:hover {
   .admin__sidebar {
     width: 100%;
     position: relative;
+<<<<<<< HEAD
     right: auto;
   }
   
@@ -1261,6 +1300,12 @@ a:hover {
     margin-inline-start: 0;
     margin-left: 0;
     padding: var(--space-4);
+=======
+  }
+  
+  .admin__main {
+    margin-left: 0;
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   }
   
   .admin {
@@ -1277,7 +1322,14 @@ a:hover {
    ============================================ */
 .modal {
   position: fixed;
+<<<<<<< HEAD
   inset: 0;
+=======
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -1287,8 +1339,11 @@ a:hover {
   opacity: 0;
   visibility: hidden;
   transition: all var(--transition-base);
+<<<<<<< HEAD
   box-sizing: border-box;
   overflow-y: auto;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .modal--open {
@@ -1305,8 +1360,11 @@ a:hover {
   overflow-y: auto;
   transform: translateY(20px);
   transition: transform var(--transition-base);
+<<<<<<< HEAD
   box-sizing: border-box;
   margin: auto;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .modal--open .modal__content {
@@ -1410,13 +1468,20 @@ a:hover {
 .toast-container {
   position: fixed;
   top: var(--space-6);
+<<<<<<< HEAD
   inset-inline-end: var(--space-6);
+=======
+  right: var(--space-6);
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
   z-index: 1100;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+<<<<<<< HEAD
   max-width: calc(100% - 2 * var(--space-6));
   pointer-events: none;
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .toast {
@@ -1424,12 +1489,18 @@ a:hover {
   background-color: var(--color-surface);
   border-radius: var(--radius-base);
   box-shadow: var(--shadow-lg);
+<<<<<<< HEAD
   border-inline-start: 4px solid var(--color-primary);
   max-width: 400px;
   min-width: 250px;
   animation: slideIn 0.3s ease;
   pointer-events: auto;
   box-sizing: border-box;
+=======
+  border-left: 4px solid var(--color-primary);
+  max-width: 400px;
+  animation: slideIn 0.3s ease;
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 }
 
 .toast--success {
@@ -1723,6 +1794,7 @@ a:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+<<<<<<< HEAD
 
 /* ============================================
    Mobile Responsive Fixes (Horizontal Overflow Prevention)
@@ -1970,3 +2042,5 @@ iframe {
     min-width: auto;
   }
 }
+=======
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7

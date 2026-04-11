@@ -96,6 +96,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ message: 'Post not found.' });
     }
 
+<<<<<<< HEAD
     // Increment view count only once per session (not on every page refresh)
     // Check if this view has already been counted in this session
     const clientSessionId = req.query.sessionId || req.headers['x-session-id'];
@@ -108,6 +109,11 @@ router.get('/:id', optionalAuth, async (req, res) => {
       post.views += 1;
       await post.save();
     }
+=======
+    // Increment view count
+    post.views += 1;
+    await post.save();
+>>>>>>> b97e42c6385e63bb2c7f761ceda27040acfc07b7
 
     // Get comments for this post
     const comments = await Comment.find({ post: post._id, parentComment: null })
