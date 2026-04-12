@@ -385,4 +385,65 @@ router.put('/password', authenticate, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/auth/test-email?email=test@example.com
+ * Test email configuration and send a test email
+ */
+router.get('/test-email', async (req, res) => {
+  try {
+    const testEmail = req.query.email || 'test@example.com';
+    
+    const config = {
+      brevoApiKeySet: !!process.env.BREVO_API_KEY,
+      emailFromSet: !!process.env.EMAIL_FROM,
+      emailFrom: process.env.EMAIL_FROM || 'NOT SET',
+      appUrl: process.env.APP_URL || 'NOT SET',
+      nodeEnv: process.env.NODE_ENV || 'development'
+    };
+
+    console.log('Email Configuration Check:', config);
+
+    if (!config.brevoApiKeySet) {
+      return res.status(400).json({
+        error: 'BREVO_API_KEY is not configured',
+        config
+      });
+    }
+
+    if (!config.emailFromSet) {
+      return res.status(400).json({
+        error: 'EMAIL_FROM is not configured',
+        config
+      });
+    }
+
+    // Try to send a test email
+    try {
+      await sendVerificationEmail(testEmail, 'TEST_TOKEN_12345', 'Test User');
+      
+      return res.json({
+        success: true,
+        message: 'Test email sent successfully!',
+        testEmail,
+        config,
+        note: 'Check your email inbox. If you didn\'t receive it, the sender email may not be verified in Brevo.'
+      });
+    } catch (emailError) {
+      console.error('Test email error:', emailError);
+      return res.status(500).json({
+        error: 'Failed to send test email',
+        message: emailError.message,
+        config,
+        fullError: emailError.toString()
+      });
+    }
+  } catch (error) {
+    console.error('Test email endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Test endpoint failed',
+      message: error.message 
+    });
+  }
+});
+
 export default router;
