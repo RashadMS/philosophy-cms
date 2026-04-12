@@ -126,18 +126,28 @@ router.post('/', authenticate, async (req, res) => {
       // If this is a reply, notify the parent comment author
       const parentComment = await Comment.findById(parentCommentId).populate('author');
       if (parentComment && parentComment.author._id.toString() !== req.user._id.toString()) {
-        await Notification.create({
-          recipient: parentComment.author._id,
-          actor: req.user._id,
-          type: 'comment',
-          post: postId,
-          comment: comment._id,
-          message: `رد على تعليقك`
-        });
+        try {
+          const notif = await Notification.create({
+            recipient: parentComment.author._id,
+            actor: req.user._id,
+            type: 'comment',
+            post: postId,
+            comment: comment._id,
+            message: `رد على تعليقك على "${comment.post.title}"`
+          });
+          console.log('✅ Reply notification created:', notif._id, 'for', parentComment.author._id);
+        } catch (notifError) {
+          console.error('❌ Error creating reply notification:', notifError);
+        }
       }
     } else {
       // If this is a top-level comment, notify the post author
-      await createCommentNotification(comment);
+      try {
+        await createCommentNotification(comment);
+        console.log('✅ Comment notification created for post:', comment.post._id);
+      } catch (notifError) {
+        console.error('❌ Error creating comment notification:', notifError);
+      }
     }
 
     res.status(201).json({

@@ -398,6 +398,11 @@ a:hover {
     gap: var(--space-1);
     flex-shrink: 0;
   }
+
+  /* Hide admin link on mobile */
+  .admin-nav-link {
+    display: none !important;
+  }
   
   .nav__auth .btn {
     display: inline-flex !important;
@@ -569,6 +574,13 @@ a:hover {
   .btn {
     min-height: 44px;
     font-size: var(--text-base);
+  }
+}
+
+/* Desktop - Show admin link in top nav */
+@media (min-width: 769px) {
+  .admin-nav-link {
+    display: flex !important;
   }
 }
 

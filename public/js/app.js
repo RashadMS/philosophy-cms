@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load content based on current page
   initPage();
+  
+
 });
 
 // ============================================
@@ -61,15 +63,21 @@ function updateAuthUI(isLoggedIn) {
   // Build auth content
   let authContent = '';
   if (isLoggedIn && currentUser) {
+    let adminLink = '';
+    if (currentUser.role === 'Admin') {
+      adminLink = `<a href="/admin.html" class="btn btn--ghost btn--sm admin-nav-link" title="لوحة التحكم" style="align-items: center; gap: 0.5rem;">⚙️</a>`;
+    }
+    
     authContent = `
       <div class="nav__user" style="display: flex; align-items: center; gap: 0.75rem;">
+        ${adminLink}
         <a href="/profile.html" class="btn btn--ghost btn--sm" title="الملف الشخصي" style="display: flex; align-items: center; gap: 0.5rem;">
           <img src="${currentUser.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.name)}" alt="avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
           <span style="font-size: 0.75rem;">${escapeHtml(currentUser.name)}</span>
         </a>
         <a href="/notifications.html" class="btn btn--ghost btn--sm" title="الإشعارات" style="display: flex; align-items: center; gap: 0.5rem; position: relative;">
           🔔
-          <span id="notificationBadge" style="position: absolute; top: 0; right: 0; background: var(--color-error); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; display: none;"></span>
+          <span id="notificationBadge" style="position: absolute; top: -5px; right: -5px; background: var(--color-error); color: white; border-radius: 50%; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;"></span>
         </a>
       </div>
     `;
@@ -103,7 +111,7 @@ async function loadNotificationCount() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const response = await fetch(`${API_URL}/notifications/unread/count`, {
+    const response = await fetch(`${API_BASE}/notifications/unread/count`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -124,6 +132,9 @@ async function loadNotificationCount() {
     console.error('Error loading notification count:', error);
   }
 }
+
+// Refresh notification count every 10 seconds
+setInterval(loadNotificationCount, 10000);
 
 /**
  * Logout user

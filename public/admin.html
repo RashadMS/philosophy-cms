@@ -318,35 +318,35 @@
       
       try {
         // Load stats and recent posts
-        const [postsRes] = await Promise.all([
+        const [statsRes, postsRes] = await Promise.all([
+          fetch('/api/posts/admin/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
           fetch('/api/posts/admin/all?limit=5', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);
         
+        const statsData = await statsRes.json();
         const postsData = await postsRes.json();
-        
-        // Calculate stats
+        const stats = statsData.stats || {};
         const posts = postsData.posts || [];
-        const totalPosts = postsData.pagination?.total || 0;
-        const totalLikes = posts.reduce((sum, p) => sum + (p.likes?.length || 0), 0);
-        const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 0);
         
         document.getElementById('statsContainer').innerHTML = `
           <div class="admin-stat">
-            <div class="admin-stat__value">${totalPosts}</div>
+            <div class="admin-stat__value">${stats.totalPosts || 0}</div>
             <div class="admin-stat__label">Total Posts</div>
           </div>
           <div class="admin-stat">
-            <div class="admin-stat__value">${posts.filter(p => p.category === 'Article').length}</div>
+            <div class="admin-stat__value">${stats.articles || 0}</div>
             <div class="admin-stat__label">Articles</div>
           </div>
           <div class="admin-stat">
-            <div class="admin-stat__value">${posts.filter(p => p.category === 'Research').length}</div>
+            <div class="admin-stat__value">${stats.research || 0}</div>
             <div class="admin-stat__label">Research Papers</div>
           </div>
           <div class="admin-stat">
-            <div class="admin-stat__value">${posts.filter(p => p.category === 'Quote').length}</div>
+            <div class="admin-stat__value">${stats.quotes || 0}</div>
             <div class="admin-stat__label">Quotes</div>
           </div>
         `;

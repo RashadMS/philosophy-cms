@@ -97,17 +97,20 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ message: 'Post not found.' });
     }
 
-    // Increment view count only once per session (not on every page refresh)
-    // Check if this view has already been counted in this session
+    // Increment view count only once per session
     const clientSessionId = req.query.sessionId || req.headers['x-session-id'];
-    const viewKey = `view_${post._id}_${clientSessionId || 'anonymous_' + req.ip}`;
     
-    // Only increment if this is a new view for this client
-    // Views will be incremented on first load, not on subsequent renders/refreshes
+    // Track views in sessionStorage on client - server always increments
+    // Initialize views to 0 if undefined
+    if (post.views === undefined || post.views === null) {
+      post.views = 0;
+    }
+    
+    // Always increment views when sessionId is provided (client is tracking views)
     if (clientSessionId) {
-      // Client provided session ID - this is a tracked view
       post.views += 1;
       await post.save();
+      console.log(`✓ View incremented for post ${post._id}: ${post.views} views`);
     }
 
     // Get comments for this post
@@ -307,27 +310,57 @@ router.post('/:id/like', authenticate, async (req, res) => {
       // Add like
       post.likes.push(userId);
       
-      // Create notification only if not the post author
+      console.log('📝 Like action:', {
+        userId: userId.toString(),
+        postAuthor: post.author.toString(),
+        postId: post._id.toString(),
+        postCategory: post.category,
+        postTitle: post.title
+      });
+      
+      // Create notification for post author only if not the user themselves
       if (post.author.toString() !== userId.toString()) {
-        await Notification.create({
-          recipient: post.author,
-          actor: userId,
-          type: 'like',
-          post: post._id,
-          message: `أعجب بمنشورك: "${post.title}"`
-        });
+        const categoryLabel = {
+          'Article': 'المقال',
+          'Research': 'البحث',
+          'Quote': 'الاقتباس'
+        }[post.category] || 'المنشور';
+        
+        try {
+          const notif = await Notification.create({
+            recipient: post.author,
+            actor: userId,
+            type: 'like',
+            post: post._id,
+            message: `أعجب بـ${categoryLabel}: "${post.title}"`
+          });
+          console.log('✅ Like notification created:', {
+            notificationId: notif._id.toString(),
+            recipientId: notif.recipient.toString(),
+            actorId: notif.actor.toString(),
+            postId: notif.post.toString()
+          });
+        } catch (notifError) {
+          console.error('❌ Error creating like notification:', notifError);
+        }
+      } else {
+        console.log('⚠️  Skipping notification: User cannot like their own post');
       }
     } else {
       // Remove like
       post.likes.splice(likeIndex, 1);
       
       // Delete notification when unliking
-      await Notification.deleteOne({
-        recipient: post.author,
-        actor: userId,
-        type: 'like',
-        post: post._id
-      });
+      try {
+        await Notification.deleteOne({
+          recipient: post.author,
+          actor: userId,
+          type: 'like',
+          post: post._id
+        });
+      } catch (delError) {
+        console.error('❌ Error deleting like notification:', delError);
+      }
     }
 
     await post.save();
@@ -345,6 +378,66 @@ router.post('/:id/like', authenticate, async (req, res) => {
     }
     
     res.status(500).json({ message: 'Failed to like post.' });
+  }
+});
+
+/**
+ * GET /api/admin/stats
+ * Get dashboard statistics (Admin only)
+ */
+router.get('/admin/stats', authenticate, requireAdmin, async (req, res) => {
+  try {
+    // Get counts for each category
+    const totalPosts = await Post.countDocuments({});
+    const articles = await Post.countDocuments({ category: 'Article' });
+    const research = await Post.countDocuments({ category: 'Research' });
+    const quotes = await Post.countDocuments({ category: 'Quote' });
+    
+    // Calculate total likes and views
+    const likesData = await Post.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $cond: [{ $isArray: '$likes' }, { $size: '$likes' }, 0] } }
+        }
+      }
+    ]);
+    
+    const viewsData = await Post.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$views' }
+        }
+      }
+    ]);
+    
+    const totalComments = await Comment.countDocuments({});
+
+    console.log('Stats calculation:', {
+      totalPosts,
+      articles,
+      research,
+      quotes,
+      totalLikes: likesData[0]?.total || 0,
+      totalViews: viewsData[0]?.total || 0,
+      totalComments
+    });
+
+    res.json({
+      stats: {
+        totalPosts,
+        articles: articles || 0,
+        research: research || 0,
+        quotes: quotes || 0,
+        totalLikes: likesData[0]?.total || 0,
+        totalViews: viewsData[0]?.total || 0,
+        totalComments: totalComments || 0
+      }
+    });
+  } catch (error) {
+    console.error('Admin stats error:', error);
+    res.status(500).json({ message: 'Failed to fetch stats.' });
   }
 });
 
@@ -389,6 +482,38 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Admin get posts error:', error);
     res.status(500).json({ message: 'Failed to fetch posts.' });
+  }
+});
+
+/**
+ * PUT /api/posts/admin/update-all-author
+ * Update all posts author to Rashad (Admin only) - ADMIN MAINTENANCE ENDPOINT
+ */
+router.put('/admin/update-all-author', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const NEW_AUTHOR_ID = '69daf883f7c5cf26fd6952e5';
+    const NEW_AUTHOR_NAME = 'رشاد';
+
+    const result = await Post.updateMany(
+      {}, // Match all documents
+      {
+        $set: {
+          author: NEW_AUTHOR_ID,
+          authorName: NEW_AUTHOR_NAME
+        }
+      }
+    );
+
+    console.log(`✓ تم تحديث ${result.modifiedCount} مقالة/اقتباس`);
+
+    res.json({
+      message: 'تم تحديث جميع المقالات بنجاح',
+      modifiedCount: result.modifiedCount,
+      matchedCount: result.matchedCount
+    });
+  } catch (error) {
+    console.error('Update all author error:', error);
+    res.status(500).json({ message: 'Failed to update posts author.' });
   }
 });
 
