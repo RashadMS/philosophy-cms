@@ -7,6 +7,7 @@ import express from 'express';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import { authenticate, optionalAuth, requireAdmin } from '../middleware/auth.js';
+import Notification from '../models/Notification.js';
 
 const router = express.Router();
 
@@ -305,9 +306,28 @@ router.post('/:id/like', authenticate, async (req, res) => {
     if (likeIndex === -1) {
       // Add like
       post.likes.push(userId);
+      
+      // Create notification only if not the post author
+      if (post.author.toString() !== userId.toString()) {
+        await Notification.create({
+          recipient: post.author,
+          actor: userId,
+          type: 'like',
+          post: post._id,
+          message: `أعجب بمنشورك: "${post.title}"`
+        });
+      }
     } else {
       // Remove like
       post.likes.splice(likeIndex, 1);
+      
+      // Delete notification when unliking
+      await Notification.deleteOne({
+        recipient: post.author,
+        actor: userId,
+        type: 'like',
+        post: post._id
+      });
     }
 
     await post.save();

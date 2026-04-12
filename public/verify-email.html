@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تحقق من بريدك الإلكتروني - رشاد(الموقع الرسمي)">
+  <title>تحقق من بريدك الإلكتروني - رشاد(الموقع الرسمي)</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico?v=2" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Verification Page Styles - Unified Design */
+    .auth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--space-4);
+      background-color: var(--color-background);
+    }
+
+    .auth__card {
+      width: 100%;
+      max-width: 500px;
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+
+    .auth__header {
+      background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+      color: white;
+      padding: var(--space-10);
+      text-align: center;
+    }
+
+    .auth__logo {
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      margin-bottom: var(--space-4);
+      transition: opacity var(--transition-fast);
+    }
+
+    .auth__logo:hover {
+      opacity: 0.9;
+    }
+
+    .auth__title {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: white;
+      margin-bottom: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    .auth__subtitle {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+    }
+
+    /* Verification Content Styles */
+    .verification-content {
+      padding: var(--space-10);
+      text-align: center;
+    }
+
+    .verification-icon {
+      font-size: 3.5rem;
+      margin-bottom: var(--space-4);
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .verification-title {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin-bottom: var(--space-4);
+    }
+
+    html[data-theme="dark"] .verification-title {
+      color: var(--color-primary-light);
+    }
+
+    .verification-message {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      color: var(--color-text-light);
+      margin-bottom: var(--space-4);
+      line-height: 1.75;
+    }
+
+    .verification-email {
+      background-color: var(--color-surface-alt);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-base);
+      margin: var(--space-4) 0;
+      font-weight: 600;
+      color: var(--color-text);
+      font-family: 'Courier New', monospace;
+      word-break: break-all;
+      border: 1px solid var(--color-border);
+    }
+
+    /* Alert Boxes */
+    .alert {
+      padding: var(--space-4);
+      border-radius: var(--radius-base);
+      margin: var(--space-4) 0;
+      border-right: 4px solid transparent;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+
+    .alert--success {
+      background-color: rgba(56, 161, 105, 0.1);
+      border-right-color: var(--color-success);
+      color: var(--color-success);
+    }
+
+    html[data-theme="dark"] .alert--success {
+      background-color: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+    }
+
+    .alert--error {
+      background-color: rgba(197, 48, 48, 0.1);
+      border-right-color: var(--color-error);
+      color: var(--color-error);
+    }
+
+    html[data-theme="dark"] .alert--error {
+      background-color: rgba(248, 113, 113, 0.15);
+      color: #f87171;
+    }
+
+    .alert--warning {
+      background-color: rgba(214, 158, 46, 0.1);
+      border-right-color: var(--color-warning);
+      color: var(--color-warning);
+    }
+
+    html[data-theme="dark"] .alert--warning {
+      background-color: rgba(250, 204, 21, 0.15);
+      color: #facc15;
+    }
+
+    .alert-icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .alert-content p {
+      margin: 0;
+      font-size: var(--text-sm);
+      line-height: 1.5;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: var(--space-6) auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Action Buttons */
+    .verification-actions {
+      margin-top: var(--space-8);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .verification-actions .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-base);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-fast);
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn--primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background-color: var(--color-primary-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn--secondary {
+      background-color: var(--color-surface-alt);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn--secondary:hover:not(:disabled) {
+      background-color: var(--color-border);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Auth Footer */
+    .auth__footer {
+      padding: var(--space-6);
+      text-align: center;
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-surface-alt);
+    }
+
+    .auth__footer p {
+      margin: 0;
+      font-size: var(--text-sm);
+      color: var(--color-text-light);
+    }
+
+    .auth__footer a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--transition-fast);
+    }
+
+    .auth__footer a:hover {
+      color: var(--color-primary-light);
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      .auth {
+        padding: var(--space-4);
+      }
+
+      .auth__card {
+        margin: 0;
+      }
+
+      .auth__header {
+        padding: var(--space-6);
+      }
+
+      .verification-content {
+        padding: var(--space-6);
+      }
+
+      .verification-icon {
+        font-size: 2.5rem;
+      }
+
+      .verification-title {
+        font-size: var(--text-xl);
+      }
+
+      .verification-message {
+        font-size: var(--text-sm);
+      }
+
+      .verification-actions {
+        flex-direction: column;
+      }
+
+      .verification-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="auth">
+    <div class="auth__card">
+      <div class="auth__header">
+        <a href="/" class="auth__logo">رشاد(الموقع الرسمي)</a>
+        <h1 class="auth__title">تحقق من بريدك</h1>
+        <p class="auth__subtitle">خطوة أساسية لتفعيل حسابك</p>
+      </div>
+
+      <div class="verification-content">
+        <div id="verificationContent">
+          <h2 class="verification-title">جاري التحقق...</h2>
+          <div class="loading-spinner"></div>
+          <p class="verification-message">يرجى الانتظار</p>
+        </div>
+      </div>
+
+      <div class="auth__footer">
+        <p>هل تواجه مشكلة؟ <a href="/register">جرب التسجيل مجدداً</a></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/theme-manager.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    // Get verification token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    // Verify email immediately on page load
+    verifyEmail();
+
+    async function verifyEmail() {
+      const container = document.getElementById('verificationContent');
+      
+      if (!token) {
+        container.innerHTML = '<h2 class="verification-title">خطأ في الرابط</h2>' +
+          '<div class="alert alert--error">' +
+          '<div class="alert-icon">[!]</div>' +
+          '<div class="alert-content">' +
+          '<p>الرابط المقدم غير صحيح أو مفقود. يرجى التأكد من نسخ الرابط كاملاً من بريدك الإلكتروني.</p>' +
+          '</div>' +
+          '</div>' +
+          '<div class="verification-actions">' +
+          '<a href="/register" class="btn btn--primary">العودة إلى التسجيل</a>' +
+          '<a href="/login" class="btn btn--secondary">تسجيل الدخول</a>' +
+          '</div>';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/verify-email?token=' + encodeURIComponent(token));
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'فشل التحقق من البريد الإلكتروني');
+        }
+
+        if (data.verified) {
+          // Success
+          container.innerHTML = '<h2 class="verification-title">تم التحقق بنجاح</h2>' +
+            '<div class="alert alert--success">' +
+            '<div class="alert-icon">[OK]</div>' +
+            '<div class="alert-content">' +
+            '<p>تم تفعيل حسابك. يمكنك الآن تسجيل الدخول والبدء باستخدام الموقع.</p>' +
+            '</div>' +
+            '</div>' +
+            '<div class="verification-email">' +
+            data.email +
+            '</div>' +
+            '<div class="verification-actions">' +
+            '<a href="/login" class="btn btn--primary">تسجيل الدخول</a>' +
+            '<a href="/" class="btn btn--secondary">الرئيسية</a>' +
+            '</div>';
+        }
+      } catch (error) {
+        container.innerHTML = '<h2 class="verification-title">فشل التحقق</h2>' +
+          '<div class="alert alert--error">' +
+          '<div class="alert-icon">[!]</div>' +
+          '<div class="alert-content">' +
+          '<p>' + error.message + '</p>' +
+          '</div>' +
+          '</div>' +
+          '<p class="verification-message">قد يكون الرابط منتهي الصلاحية أو تم استخدامه من قبل.</p>' +
+          '<div class="verification-actions">' +
+          '<a href="/register" class="btn btn--primary">طلب رابط جديد</a>' +
+          '<a href="/login" class="btn btn--secondary">تسجيل الدخول</a>' +
+          '</div>';
+      }
+    }
+
+    // Redirect if already logged in
+    if (localStorage.getItem('token')) {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      window.location.href = user.role === 'Admin' ? '/admin' : '/';
+    }
+  </script>
+</body>
+</html>

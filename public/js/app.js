@@ -105,9 +105,14 @@ function updateAuthUI(isLoggedIn) {
   if (isLoggedIn && currentUser) {
     authContent = `
       <div class="nav__user" style="display: flex; align-items: center; gap: 0.75rem;">
-        <span style="font-size: 0.875rem; color: var(--color-text-muted);">
-          ${escapeHtml(currentUser.name)}
-        </span>
+        <a href="/profile.html" class="btn btn--ghost btn--sm" title="الملف الشخصي" style="display: flex; align-items: center; gap: 0.5rem;">
+          <img src="${currentUser.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.name)}" alt="avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+          <span style="font-size: 0.75rem;">${escapeHtml(currentUser.name)}</span>
+        </a>
+        <a href="/notifications.html" class="btn btn--ghost btn--sm" title="الإشعارات" style="display: flex; align-items: center; gap: 0.5rem; position: relative;">
+          🔔
+          <span id="notificationBadge" style="position: absolute; top: 0; right: 0; background: var(--color-error); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; display: none;"></span>
+        </a>
         ${currentUser.role === 'Admin' ? `
           <a href="/admin" class="btn btn--ghost btn--sm">لوحة التحكم</a>
         ` : ''}
@@ -124,10 +129,45 @@ function updateAuthUI(isLoggedIn) {
   // Add theme toggle button at the end
   navAuth.innerHTML = authContent;
   
+  // Load notification count if logged in
+  if (isLoggedIn && currentUser) {
+    loadNotificationCount();
+  }
+  
   // Append theme toggle button if theme-manager loaded
   if (typeof createThemeToggleButton !== 'undefined') {
     const themeToggle = createThemeToggleButton();
     navAuth.appendChild(themeToggle);
+  }
+}
+
+/**
+ * Load unread notifications count
+ */
+async function loadNotificationCount() {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const response = await fetch(`${API_URL}/notifications/unread/count`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const badge = document.getElementById('notificationBadge');
+      
+      if (data.unreadCount > 0) {
+        badge.textContent = data.unreadCount > 9 ? '9+' : data.unreadCount;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading notification count:', error);
   }
 }
 
@@ -304,7 +344,7 @@ function renderPostCard(post) {
       <div class="card__content">
         <span class="card__category">${post.category}</span>
         <h3 class="card__title">
-          <a href="/post/${post._id}">${escapeHtml(post.title)}</a>
+          <a href="/post.html?id=${post._id}">${escapeHtml(post.title)}</a>
         </h3>
         <p class="card__excerpt">${escapeHtml(post.excerpt || post.content.substring(0, 150))}...</p>
         <div class="card__meta">
@@ -339,7 +379,7 @@ function renderQuoteCard(post) {
           <p class="card__attribution">— ${escapeHtml(post.quoteAuthor)}</p>
         ` : ''}
         <div class="card__meta" style="margin-top: 1.5rem; color: rgba(255,255,255,0.6);">
-          <a href="/post/${post._id}" style="color: var(--color-accent-light);">اقرأ المزيد ←</a>
+          <a href="/post.html?id=${post._id}" style="color: var(--color-accent-light);">اقرأ المزيد ←</a>
           <span class="card__stat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>

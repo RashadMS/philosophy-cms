@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإشعارات</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="/js/theme-manager.js"></script>
+    <style>
+        .notifications-page {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 1rem;
+        }
+
+        .notifications-header h1 {
+            font-family: var(--font-serif);
+            color: var(--color-primary);
+            font-size: var(--text-2xl);
+            margin: 0;
+        }
+
+        .notifications-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn--back {
+            background: var(--color-accent);
+            color: white;
+            font-family: var(--font-sans);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: var(--text-sm);
+            transition: all var(--transition-base);
+        }
+
+        .btn--back:hover {
+            background: var(--color-primary);
+            transform: translateX(2px);
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notification-item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            transition: all var(--transition-base);
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary);
+        }
+
+        .notification-item.unread {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .notification-item.unread .notification-actor,
+        .notification-item.unread .notification-time {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notification-message {
+            font-size: var(--text-sm);
+            line-height: 1.5;
+            font-family: var(--font-sans);
+        }
+
+        .notification-actor {
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .notification-item.unread .notification-actor {
+            color: var(--color-accent-light);
+        }
+
+        .notification-post {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .notification-item.unread .notification-post {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .notification-time {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+        }
+
+        .notification-badge {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-surface);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-base);
+            font-size: var(--text-xs);
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .notification-item.unread .notification-badge {
+            background: var(--color-accent-light);
+            color: var(--color-primary);
+        }
+
+        .empty-notifications {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--color-text-muted);
+        }
+
+        .empty-notifications p {
+            font-size: var(--text-lg);
+            margin: 1rem 0 0 0;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-sans);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .btn--ghost {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn--ghost:hover {
+            background: var(--color-surface-alt);
+            border-color: var(--color-primary);
+        }
+
+        .btn--sm {
+            padding: 0.375rem 0.75rem;
+            font-size: var(--text-xs);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-text-muted);
+        }
+
+        .spinner {
+            border: 3px solid var(--color-border);
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .notification-type {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .notification-type.comment {
+            background: var(--color-primary);
+        }
+
+        .notification-type.like {
+            background: var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="notifications-page">
+        <div class="notifications-header">
+            <h1>الإشعارات</h1>
+            <div class="notifications-actions">
+                <button id="backHome" class="btn--back">← العودة للرئيسية</button>
+                <button id="markAllRead" class="btn btn--ghost btn--sm" style="display: none;">تحديد الكل كمقروء</button>
+            </div>
+        </div>
+
+        <div id="notificationsContainer" class="notifications-list">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>جاري تحميل الإشعارات...</p>
+            </div>
+        </div>
+
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let currentPage = 1;
+        let totalPages = 1;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function formatTime(date) {
+            const now = new Date();
+            const notifDate = new Date(date);
+            const diff = now - notifDate;
+            
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return 'للتو';
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            if (days < 7) return `منذ ${days} يوم`;
+            
+            return notifDate.toLocaleDateString('ar-SA');
+        }
+
+        function getNotificationBadge(type) {
+            if (type === 'comment') return 'تعليق';
+            if (type === 'like') return 'إعجاب';
+            return type;
+        }
+
+        async function loadNotifications(page = 1) {
+            try {
+                const token = getToken();
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Create abort controller with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                try {
+                    const response = await fetch(`${API_URL}/notifications?page=${page}&limit=20`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.message || `HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Ensure data has the expected structure
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Invalid response format');
+                    }
+                    
+                    if (!Array.isArray(data.notifications)) {
+                        throw new Error('Notifications is not an array');
+                    }
+                    
+                    if (!data.pagination || typeof data.pagination !== 'object') {
+                        throw new Error('Pagination data is missing');
+                    }
+                    
+                    renderNotifications(data.notifications, data.pagination);
+                    currentPage = page;
+                    totalPages = data.pagination.pages || 1;
+                    renderPagination();
+
+                    // Check if there are unread notifications
+                    if (data.notifications.some(n => !n.read)) {
+                        document.getElementById('markAllRead').style.display = 'block';
+                    }
+                } catch (fetchError) {
+                    clearTimeout(timeoutId);
+                    if (fetchError.name === 'AbortError') {
+                        throw new Error('انتهاء مهلة الاتصال - يرجى المحاولة لاحقاً');
+                    }
+                    throw fetchError;
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notificationsContainer').innerHTML = `
+                    <div class="empty-notifications">
+                        <p>خطأ في تحميل الإشعارات</p>
+                        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-top: 0.5rem;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderNotifications(notifications, pagination) {
+            const container = document.getElementById('notificationsContainer');
+
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-notifications">
+                        <p>لا توجد إشعارات</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                container.innerHTML = notifications.map(notif => {
+                    // Safe data extraction with strong null checks
+                    const postId = notif.post?._id || (typeof notif.post === 'string' ? notif.post : '');
+                    const postTitle = notif.post?.title || 'منشور بدون عنوان';
+                    const commentId = notif.comment?._id || (typeof notif.comment === 'string' ? notif.comment : '');
+                    const actorName = notif.actor?.name || 'مستخدم';
+                    const actorAvatar = notif.actor?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(actorName)}`;
+                    const notifId = notif._id || '';
+                    const isRead = notif.read === true;
+                    
+                    return `
+                <div class="notification-item ${!isRead ? 'unread' : ''}" onclick="viewNotificationPost('${postId}', '${commentId}', '${notifId}', ${!isRead})">
+                    <img src="${actorAvatar}" alt="avatar" class="notification-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                    <div class="notification-content">
+                        <div class="notification-message">
+                            <span class="notification-type ${notif.type || 'comment'}"></span>
+                            <span class="notification-badge">${getNotificationBadge(notif.type)}</span>
+                            <span class="notification-actor">${escapeHtml(actorName)}</span>
+                        </div>
+                        <div>${escapeHtml(notif.message || '')}</div>
+                        <div class="notification-post">${escapeHtml(postTitle)}</div>
+                        <div class="notification-time">${formatTime(notif.createdAt)}</div>
+                    </div>
+                </div>
+            `;
+                }).join('');
+            } catch (error) {
+                console.error('Error rendering notifications:', error);
+                container.innerHTML = `
+                    <div class="empty-notifications">
+                        <p>خطأ في عرض الإشعارات</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                html += `<button class="btn btn--ghost btn--sm" onclick="loadNotifications(${currentPage - 1})">السابق</button>`;
+            }
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="btn btn--primary btn--sm" style="cursor: default;">${i}</button>`;
+                } else if (i >= currentPage - 2 && i <= currentPage + 2) {
+                    html += `<button class="btn btn--ghost btn--sm" onclick="loadNotifications(${i})">${i}</button>`;
+                }
+            }
+
+            // Next button
+            if (currentPage < totalPages) {
+                html += `<button class="btn btn--ghost btn--sm" onclick="loadNotifications(${currentPage + 1})">التالي</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function viewNotificationPost(postId, commentId, notificationId, isUnread) {
+            try {
+                if (isUnread) {
+                    const token = getToken();
+                    await fetch(`${API_URL}/notifications/${notificationId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                }
+                // Redirect with comment ID for scrolling to the comment
+                let url = `/post.html?id=${postId}`;
+                if (commentId) {
+                    url += `&comment=${commentId}`;
+                }
+                window.location.href = url;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                const token = getToken();
+                await fetch(`${API_URL}/notifications`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                loadNotifications(currentPage);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
+        document.getElementById('backHome').addEventListener('click', () => {
+            window.location.href = '/index.html';
+        });
+
+        loadNotifications();
+    </script>
+</body>
+</html>

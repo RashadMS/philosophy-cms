@@ -72,6 +72,8 @@
   <script src="/js/theme-manager.js"></script>
   <script src="/js/app.js"></script>
   <script>
+    let unverifiedEmail = null;
+
     // Login form handler
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -87,7 +89,7 @@
       
       // Disable button
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Signing in...';
+      submitBtn.textContent = 'جاري تسجيل الدخول...';
       
       try {
         const response = await fetch('/api/auth/login', {
@@ -101,6 +103,15 @@
         const data = await response.json();
         
         if (!response.ok) {
+          // Check if it's an unverified email error (403)
+          if (response.status === 403 && data.requiresVerification) {
+            unverifiedEmail = email;
+            showUnverifiedMessage(email);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'تسجيل الدخول';
+            return;
+          }
+          
           throw new Error(data.message || 'فشل تسجيل الدخول');
         }
         
@@ -127,6 +138,86 @@
         submitBtn.textContent = 'تسجيل الدخول';
       }
     });
+    
+    // Show message for unverified email
+    function showUnverifiedMessage(email) {
+      const loginForm = document.getElementById('loginForm');
+      const card = loginForm.parentElement;
+      
+      card.innerHTML = `
+        <div class="auth__header">
+          <a href="/" class="auth__logo">رشاد(الموقع الرسمي)</a>
+          <h1 class="auth__title">تحقق من بريدك الإلكتروني</h1>
+        </div>
+        
+        <div style="padding: 30px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 20px;">📧</div>
+          
+          <p style="font-size: 16px; margin-bottom: 15px; color: #333;">
+            لم يتم التحقق من بريدك الإلكتروني بعد.
+          </p>
+          
+          <p style="font-size: 14px; background-color: #f0f0f0; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+            ${email}
+          </p>
+          
+          <div style="background-color: #fff3cd; border-right: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin-bottom: 20px; text-align: right;">
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+              <strong>⚠️</strong> يجب التحقق من بريدك الإلكتروني قبل تسجيل الدخول.
+            </p>
+          </div>
+          
+          <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+            تحقق من صندوق البريد الوارد واضغط على رابط التحقق.
+            <br>إذا لم تجد البريد، تحقق من مجلد الرسائل العشوائية.
+          </p>
+          
+          <button onclick="resendVerificationEmail('${email}')" class="btn btn--primary" style="background-color: #667eea; color: white; padding: 12px 30px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+            إعادة إرسال البريد
+          </button>
+          
+          <p style="font-size: 12px; margin-top: 20px;">
+            <a href="/login" onclick="location.reload()" style="color: #667eea; text-decoration: none;">العودة</a>
+          </p>
+        </div>
+      `;
+    }
+    
+    // Resend verification email
+    async function resendVerificationEmail(email) {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'جاري إعادة الإرسال...';
+      
+      try {
+        const response = await fetch('/api/auth/resend-verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'فشل إعادة الإرسال');
+        }
+        
+        showToast('تم إرسال البريد بنجاح!', 'success');
+        btn.textContent = 'إعادة إرسال البريد';
+        
+        // Reset button after 30 seconds
+        setTimeout(() => {
+          btn.disabled = false;
+        }, 30000);
+        
+      } catch (error) {
+        showToast(error.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'إعادة إرسال البريد';
+      }
+    }
     
     // Redirect if already logged in
     if (localStorage.getItem('token')) {

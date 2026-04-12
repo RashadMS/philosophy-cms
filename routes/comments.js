@@ -7,12 +7,15 @@ import express from 'express';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
+import { createCommentNotification, deleteCommentNotifications } from '../lib/notifications.js';
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
 /**
  * GET /api/comments/post/:postId
- * Get all comments for a specific post
+ * Get all comments for a specific post (with nested replies)
  */
 router.get('/post/:postId', async (req, res) => {
   try {
@@ -22,20 +25,46 @@ router.get('/post/:postId', async (req, res) => {
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Get top-level comments (no parent)
-    const [comments, total] = await Promise.all([
-      Comment.find({ post: req.params.postId, parentComment: null })
-        .populate('author', 'name avatar')
-        .populate({
+    // Recursive function to populate nested replies
+    async function populateReplies(comment) {
+      if (!comment.replies || comment.replies.length === 0) {
+        return comment;
+      }
+      
+      // Get all replies and populate their author
+      await Comment.populate(comment.replies, { path: 'author', select: 'name avatar' });
+      
+      // Recursively populate replies of replies
+      for (let reply of comment.replies) {
+        await reply.populate({
           path: 'replies',
           populate: { path: 'author', select: 'name avatar' },
           options: { sort: { createdAt: 1 } }
-        })
-        .sort('-createdAt')
-        .skip(skip)
-        .limit(limitNum),
-      Comment.countDocuments({ post: req.params.postId, parentComment: null })
-    ]);
+        });
+        await populateReplies(reply);
+      }
+      
+      return comment;
+    }
+
+    // Get top-level comments (no parent)
+    let comments = await Comment.find({ post: req.params.postId, parentComment: null })
+      .populate('author', 'name avatar')
+      .populate({
+        path: 'replies',
+        populate: { path: 'author', select: 'name avatar' },
+        options: { sort: { createdAt: 1 } }
+      })
+      .sort('-createdAt')
+      .skip(skip)
+      .limit(limitNum);
+
+    // Populate all nested replies recursively
+    for (let comment of comments) {
+      await populateReplies(comment);
+    }
+
+    const total = await Comment.countDocuments({ post: req.params.postId, parentComment: null });
 
     res.json({
       comments,
@@ -88,6 +117,28 @@ router.post('/', authenticate, async (req, res) => {
 
     // Populate author info before sending response
     await comment.populate('author', 'name avatar');
+    
+    // Populate post info for notification
+    await comment.populate('post', 'author title');
+    
+    // Create notification
+    if (parentCommentId) {
+      // If this is a reply, notify the parent comment author
+      const parentComment = await Comment.findById(parentCommentId).populate('author');
+      if (parentComment && parentComment.author._id.toString() !== req.user._id.toString()) {
+        await Notification.create({
+          recipient: parentComment.author._id,
+          actor: req.user._id,
+          type: 'comment',
+          post: postId,
+          comment: comment._id,
+          message: `رد على تعليقك`
+        });
+      }
+    } else {
+      // If this is a top-level comment, notify the post author
+      await createCommentNotification(comment);
+    }
 
     res.status(201).json({
       message: 'Comment posted successfully.',
@@ -170,6 +221,9 @@ router.delete('/:id', authenticate, async (req, res) => {
     // Delete all replies to this comment
     await Comment.deleteMany({ parentComment: comment._id });
 
+    // Delete notifications related to this comment
+    await deleteCommentNotifications(comment._id);
+
     // Delete the comment
     await Comment.findByIdAndDelete(req.params.id);
 
@@ -201,9 +255,31 @@ router.post('/:id/like', authenticate, async (req, res) => {
     const likeIndex = comment.likes.indexOf(userId);
 
     if (likeIndex === -1) {
+      // Add like
       comment.likes.push(userId);
+      
+      // Create notification only if not the comment author
+      if (comment.author.toString() !== userId.toString()) {
+        await Notification.create({
+          recipient: comment.author,
+          actor: userId,
+          type: 'like',
+          post: comment.post,
+          comment: comment._id,
+          message: `أعجب بتعليقك`
+        });
+      }
     } else {
+      // Remove like
       comment.likes.splice(likeIndex, 1);
+      
+      // Delete notification when unliking
+      await Notification.findOneAndDelete({
+        recipient: comment.author,
+        actor: userId,
+        type: 'like',
+        comment: comment._id
+      });
     }
 
     await comment.save();

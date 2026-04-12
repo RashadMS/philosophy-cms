@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ملفك الشخصي على منصة رشاد - تعديل بيانات الملف والصور والتعليقات">
+    <title>ملفي الشخصي - رشاد(الموقع الرسمي)</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico?v=2" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <style>
+        /* Profile Page Custom Styles */
+        .profile-page {
+            min-height: calc(100vh - 200px);
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-header h1 {
+            margin: 0;
+            font-size: var(--text-3xl);
+        }
+
+        .tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            background-color: var(--color-surface);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-weight: 500;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tab-btn:hover {
+            background-color: var(--color-surface-alt);
+            color: var(--color-primary);
+        }
+
+        .tab-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: var(--color-surface);
+            padding: var(--space-8);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Profile Edit Tab */
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: var(--space-8);
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .avatar-section {
+            text-align: center;
+        }
+
+        .avatar-section h3 {
+            margin-bottom: var(--space-4);
+            font-size: var(--text-lg);
+        }
+
+        .avatar-display {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto var(--space-6);
+            background-color: var(--color-surface-alt);
+            border: 4px solid var(--color-primary);
+        }
+
+        .upload-section {
+            margin-top: var(--space-6);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            background-color: var(--color-primary);
+            color: white;
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background-color: var(--color-primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-family: var(--font-sans);
+            font-size: var(--text-base);
+            color: var(--color-text);
+            background-color: var(--color-surface-alt);
+            transition: border-color var(--transition-fast);
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .form-group small {
+            display: block;
+            color: var(--color-text-muted);
+            font-size: var(--text-xs);
+            margin-top: var(--space-2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-8);
+        }
+
+        .edit-info {
+            background-color: var(--color-surface-alt);
+            padding: var(--space-4);
+            border-radius: var(--radius-base);
+            margin-top: var(--space-6);
+            border-right: 4px solid var(--color-accent);
+            font-size: var(--text-sm);
+            color: var(--color-text-light);
+            line-height: 1.6;
+        }
+
+        .alert {
+            padding: var(--space-4);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-6);
+            display: none;
+            border-right: 4px solid var(--color-primary);
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        .alert-error {
+            background-color: rgba(197, 48, 48, 0.1);
+            color: var(--color-error);
+            border-color: var(--color-error);
+        }
+
+        .alert-info {
+            background-color: rgba(26, 54, 93, 0.1);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        /* Comments Tab */
+        .comments-list,
+        .likes-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .item-card {
+            background-color: var(--color-surface-alt);
+            padding: var(--space-6);
+            border-radius: var(--radius-base);
+            border-right: 4px solid var(--color-accent);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-3);
+        }
+
+        .item-title {
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: var(--text-base);
+            margin: 0;
+        }
+
+        .item-date {
+            color: var(--color-text-muted);
+            font-size: var(--text-xs);
+        }
+
+        .item-content {
+            color: var(--color-text-light);
+            line-height: 1.7;
+            margin-top: var(--space-3);
+            font-size: var(--text-sm);
+        }
+
+        .item-meta {
+            display: flex;
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+            color: var(--color-text-muted);
+            font-size: var(--text-xs);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: var(--space-16);
+            color: var(--color-text-muted);
+        }
+
+        .empty-message svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: var(--space-6);
+            opacity: 0.5;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-2);
+            margin-top: var(--space-8);
+        }
+
+        .pagination button {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-border);
+            background-color: var(--color-surface);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: var(--text-sm);
+        }
+
+        .pagination button.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .pagination button:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: var(--space-16);
+            color: var(--color-primary);
+        }
+
+        .spinner {
+            border: 4px solid var(--color-border);
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-6);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+
+            header h1 {
+                font-size: var(--text-2xl);
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .profile-header {
+                flex-direction: column;
+            }
+
+            .tab-content {
+                padding: var(--space-4);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header__inner">
+            <a href="/" class="header__logo">رشاد(الموقع الرسمي)</a>
+            
+            <nav class="nav">
+                <button class="nav__toggle" id="navToggle" aria-label="فتح القائمة">
+                    <span class="nav__toggle-icon"></span>
+                </button>
+                
+                <ul class="nav__links" id="navLinks">
+                    <li><a href="/" class="nav__link">الرئيسية</a></li>
+                    <li><a href="/#articles" class="nav__link">المقالات</a></li>
+                    <li><a href="/#research" class="nav__link">الأبحاث</a></li>
+                    <li><a href="/#quotes" class="nav__link">الحكم</a></li>
+                </ul>
+                
+                <div class="nav__auth" id="navAuth">
+                    <!-- Dynamically populated -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="profile-page">
+        <div class="container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <h1>ملفي الشخصي</h1>
+                <button class="btn btn--danger btn--sm" onclick="logout()">تسجيل الخروج</button>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('profile')">تعديل الملف الشخصي</button>
+                <button class="tab-btn" onclick="switchTab('comments')">التعليقات</button>
+                <button class="tab-btn" onclick="switchTab('likes')">الإعجابات</button>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content active">
+                <div id="profileAlert" class="alert"></div>
+                
+                <div class="profile-container">
+                    <!-- Avatar Section -->
+                    <div class="avatar-section">
+                        <h3>صورتك الشخصية</h3>
+                        <img id="avatarDisplay" class="avatar-display" src="https://via.placeholder.com/180?text=بدون+صورة" alt="صورتك الشخصية">
+                        
+                        <div class="upload-section">
+                            <div class="file-input-wrapper">
+                                <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar()">
+                                <label for="avatarInput" class="file-input-label">اختر صورة</label>
+                            </div>
+                        </div>
+                        <small style="display: block; color: var(--color-text-muted); margin-top: var(--space-3);">
+                            الحد الأقصى للحجم: 5 MB
+                        </small>
+                    </div>
+
+                    <!-- Form Section -->
+                    <div>
+                        <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-6);">تعديل البيانات</h2>
+                        
+                        <div class="form-group">
+                            <label for="nameInput">الاسم *</label>
+                            <input type="text" id="nameInput" class="form-input" maxlength="50" placeholder="اسمك الكامل">
+                            <small>الحد الأدنى: حرفان، الحد الأقصى: 50 حرف</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailInput">البريد الإلكتروني (للعرض فقط)</label>
+                            <input type="email" id="emailInput" class="form-input" disabled>
+                            <small>لا يمكن تغيير البريد الإلكتروني من هنا</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bioInput">السيرة الشخصية</label>
+                            <textarea id="bioInput" class="form-input" placeholder="أكتب شيئاً عن نفسك (اختياري)" maxlength="500"></textarea>
+                            <small><span id="bioCount">0</span>/500</small>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn--primary" onclick="updateProfile()">حفظ التغييرات</button>
+                            <button class="btn btn--secondary" onclick="cancelEdit()">إلغاء</button>
+                        </div>
+
+                        <div class="edit-info">
+                            <strong>ملاحظة أمان:</strong> بيانتك محمية بتشفير قوي. لا يمكن تغيير بريدك الإلكتروني من هنا.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Tab -->
+            <div id="comments" class="tab-content">
+                <div id="commentsContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        جارٍ تحميل تعليقاتك...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Likes Tab -->
+            <div id="likes" class="tab-content">
+                <div id="likesContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        جارٍ تحميل إعجاباتك...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__inner">
+            <div class="footer__brand">
+                <h4 class="footer__title">رشاد(الموقع الرسمي)</h4>
+                <p class="footer__description">
+                    منصة للتأمل والاستكشاف الفكري. ننشر محتوى يثير السؤال والتأمل.
+                </p>
+            </div>
+            
+            <div>
+                <h4 class="footer__title">المحتوى</h4>
+                <ul class="footer__links">
+                    <li><a href="/#articles" class="footer__link">المقالات</a></li>
+                    <li><a href="/#research" class="footer__link">الأبحاث</a></li>
+                    <li><a href="/#quotes" class="footer__link">الحِكَم</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="footer__title">الروابط</h4>
+                <ul class="footer__links">
+                    <li><a href="/" class="footer__link">الرئيسية</a></li>
+                    <li><a href="/profile.html" class="footer__link">ملفي الشخصي</a></li>
+                    <li><a href="/login.html" class="footer__link">تسجيل الدخول</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer__bottom">
+            <p>&copy; 2026 رشاد(الموقع الرسمي). جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="/js/theme-manager.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        const API_URL = '/api';
+        let currentCommentsPage = 1;
+        let currentLikesPage = 1;
+        let avatarDataURL = null;
+
+        // Get token from localStorage
+        function getToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showAlert('خطأ أمان: لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مجدداً.', 'profileAlert', 'error');
+                setTimeout(() => window.location.href = '/login.html', 2000);
+            }
+            return token;
+        }
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load content if needed
+            if (tabName === 'comments' && document.getElementById('commentsContainer').innerHTML.includes('جارٍ')) {
+                loadComments();
+            } else if (tabName === 'likes' && document.getElementById('likesContainer').innerHTML.includes('جارٍ')) {
+                loadLikes();
+            }
+        }
+
+        // Load profile data
+        async function loadProfile() {
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_URL}/users/profile/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('جلستك منتهية. يرجى تسجيل الدخول مجدداً.');
+                    }
+                    throw new Error('فشل تحميل بيانات الملف الشخصي');
+                }
+
+                const { user } = await response.json();
+                document.getElementById('nameInput').value = user.name;
+                document.getElementById('emailInput').value = user.email;
+                document.getElementById('bioInput').value = user.bio || '';
+                updateBioCounter();
+
+                if (user.avatar) {
+                    document.getElementById('avatarDisplay').src = user.avatar;
+                }
+
+            } catch (error) {
+                showAlert(error.message, 'profileAlert', 'error');
+            }
+        }
+
+        // Preview avatar
+        function previewAvatar() {
+            const file = document.getElementById('avatarInput').files[0];
+            if (!file) return;
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('حجم الصورة كبير جداً. الحد الأقصى 5 MB', 'profileAlert', 'error');
+                document.getElementById('avatarInput').value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Compress image before using
+                compressImage(e.target.result, (compressedDataUrl) => {
+                    avatarDataURL = compressedDataUrl;
+                    document.getElementById('avatarDisplay').src = compressedDataUrl;
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Compress image to reduce payload size
+        function compressImage(dataUrl, callback) {
+            const img = new Image();
+            img.src = dataUrl;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set max dimensions
+                let width = img.width;
+                let height = img.height;
+                const maxWidth = 400;
+                const maxHeight = 400;
+                
+                // Calculate new dimensions
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Compress to quality 0.7
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                callback(compressedDataUrl);
+            };
+        }
+
+        // Update bio counter
+        document.addEventListener('DOMContentLoaded', () => {
+            const bioInput = document.getElementById('bioInput');
+            bioInput.addEventListener('input', updateBioCounter);
+            updateAuthUI(!!localStorage.getItem('token'));
+        });
+
+        function updateBioCounter() {
+            const bioInput = document.getElementById('bioInput');
+            const count = bioInput.value.length;
+            document.getElementById('bioCount').textContent = count;
+        }
+
+        // Update profile
+        async function updateProfile() {
+            const name = document.getElementById('nameInput').value.trim();
+            const bio = document.getElementById('bioInput').value.trim();
+
+            // Validation
+            if (!name || name.length < 2) {
+                showAlert('الاسم يجب أن يكون 2 حروف على الأقل', 'profileAlert', 'error');
+                return;
+            }
+
+            if (name.length > 50) {
+                showAlert('الاسم لا يجب أن يتجاوز 50 حرف', 'profileAlert', 'error');
+                return;
+            }
+
+            if (bio.length > 500) {
+                showAlert('السيرة الشخصية لا يجب أن تتجاوز 500 حرف', 'profileAlert', 'error');
+                return;
+            }
+
+            try {
+                const token = getToken();
+                const updateData = { name, bio };
+
+                if (avatarDataURL) {
+                    updateData.avatar = avatarDataURL;
+                }
+
+                const response = await fetch(`${API_URL}/users/profile/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'فشل تحديث الملف الشخصي');
+                }
+
+                const { user } = await response.json();
+                showAlert('✅ تم تحديث الملف الشخصي بنجاح!', 'profileAlert', 'success');
+                
+                // Update localStorage with new user data
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                // Update current user and navbar if available
+                if (typeof checkAuth === 'function') {
+                    checkAuth();
+                }
+                if (typeof updateAuthUI === 'function') {
+                    updateAuthUI(true);
+                }
+                
+                avatarDataURL = null;
+                document.getElementById('avatarInput').value = '';
+                
+            } catch (error) {
+                showAlert(error.message, 'profileAlert', 'error');
+            }
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            avatarDataURL = null;
+            document.getElementById('avatarInput').value = '';
+            loadProfile();
+        }
+
+        // Load comments
+        async function loadComments(page = 1) {
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_URL}/users/me/comments?page=${page}&limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('فشل تحميل التعليقات');
+                }
+
+                const { comments, pagination } = await response.json();
+                currentCommentsPage = pagination.current;
+                
+                console.log('Comments data received:', comments);
+
+                if (comments.length === 0) {
+                    document.getElementById('commentsContainer').innerHTML = `
+                        <div class="empty-message">
+                            <p style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">💬</p>
+                            <p>لم تقم بإضافة أي تعليقات حتى الآن</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="comments-list">';
+                comments.forEach(comment => {
+                    console.log('Processing comment:', comment, 'Author:', comment.author);
+                    
+                    const date = new Date(comment.createdAt).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    let userAvatar = 'https://ui-avatars.com/api/?name=User&background=random';
+                    let authorName = 'مستخدم';
+                    
+                    if (comment.author) {
+                        authorName = comment.author.name || 'مستخدم';
+                        if (comment.author.avatar) {
+                            userAvatar = comment.author.avatar;
+                        } else {
+                            userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`;
+                        }
+                    }
+
+                    html += `
+                        <div class="item-card">
+                            <div class="item-header" style="align-items: center; margin-bottom: var(--space-4);">
+                                <img src="${userAvatar}" alt="${authorName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: var(--space-3);">
+                                <div>
+                                    <h3 class="item-title">📄 ${comment.post?.title || 'منشور'}</h3>
+                                    <div class="item-date">${date}</div>
+                                </div>
+                            </div>
+                            <div class="item-content">${escapeHtml(comment.content)}</div>
+                            <div class="item-meta">
+                                <span class="meta-item">❤️ ${comment.likes?.length || 0} إعجاب</span>
+                                ${comment.edited ? '<span class="meta-item">✏️ تم التعديل</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                // Pagination
+                if (pagination.pages > 1) {
+                    html += '<div class="pagination">';
+                    for (let i = 1; i <= pagination.pages; i++) {
+                        html += `<button ${i === pagination.current ? 'class="active"' : ''} onclick="loadComments(${i})">${i}</button>`;
+                    }
+                    html += '</div>';
+                }
+
+                document.getElementById('commentsContainer').innerHTML = html;
+
+            } catch (error) {
+                showAlert(error.message, 'commentsContainer', 'error');
+            }
+        }
+
+        // Load likes
+        async function loadLikes(page = 1) {
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_URL}/users/me/likes?page=${page}&limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('فشل تحميل الإعجابات');
+                }
+
+                const { posts, pagination } = await response.json();
+                currentLikesPage = pagination.current;
+
+                if (posts.length === 0) {
+                    document.getElementById('likesContainer').innerHTML = `
+                        <div class="empty-message">
+                            <p style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">❤️</p>
+                            <p>لم تقم بإعجاب بأي منشورات حتى الآن</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="likes-list">';
+                posts.forEach(post => {
+                    const date = new Date(post.createdAt).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    const preview = post.content.substring(0, 150) + (post.content.length > 150 ? '...' : '');
+
+                    html += `
+                        <div class="item-card">
+                            <div class="item-header">
+                                <div>
+                                    <h3 class="item-title">${post.category}</h3>
+                                    <div style="color: var(--color-primary); font-size: var(--text-sm); margin-top: var(--space-1);">${post.title}</div>
+                                </div>
+                                <div class="item-date">${date}</div>
+                            </div>
+                            <div class="item-content">${escapeHtml(preview).substring(0, 200)}</div>
+                            <div class="item-meta">
+                                <span class="meta-item">✍️ ${post.author?.name || 'مؤلف'}</span>
+                                <span class="meta-item">❤️ ${post.likes?.length || 0} إعجاب</span>
+                                <span class="meta-item">💬 ${post.commentsCount || 0} تعليق</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                // Pagination
+                if (pagination.pages > 1) {
+                    html += '<div class="pagination">';
+                    for (let i = 1; i <= pagination.pages; i++) {
+                        html += `<button ${i === pagination.current ? 'class="active"' : ''} onclick="loadLikes(${i})">${i}</button>`;
+                    }
+                    html += '</div>';
+                }
+
+                document.getElementById('likesContainer').innerHTML = html;
+
+            } catch (error) {
+                showAlert(error.message, 'likesContainer', 'error');
+            }
+        }
+
+        // Show alert
+        function showAlert(message, containerId, type = 'info') {
+            const alertDiv = document.getElementById(containerId);
+            if (!alertDiv) return;
+
+            alertDiv.className = `alert show alert-${type}`;
+            alertDiv.textContent = message;
+
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج؟')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            loadProfile();
+        });
+
+        // Listen for theme changes from other tabs/pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme') {
+                document.getElementById('html-root').setAttribute('data-theme', e.newValue || 'light');
+            }
+        });
+    </script>
+</body>
+</html>

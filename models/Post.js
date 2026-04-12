@@ -79,7 +79,7 @@ const postSchema = new mongoose.Schema({
 
 // Virtual for like count
 postSchema.virtual('likeCount').get(function() {
-  return this.likes.length;
+  return this.likes ? this.likes.length : 0;
 });
 
 // Virtual for comment count (populated separately)

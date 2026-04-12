@@ -1044,10 +1044,40 @@ a:hover {
   border: none;
   cursor: pointer;
   transition: color var(--transition-fast);
+  font-family: var(--font-sans);
 }
 
 .comment__action:hover {
   color: var(--color-primary);
+}
+
+.comment__action--like {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.comment__like-icon {
+  transition: fill var(--transition-fast), color var(--transition-fast);
+}
+
+.comment__like-icon--liked {
+  fill: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.comment__like-count {
+  font-size: var(--text-xs);
+  min-width: 14px;
+  text-align: center;
+}
+
+.comment__action--delete {
+  color: var(--color-text-muted);
+}
+
+.comment__action--delete:hover {
+  color: var(--color-error);
 }
 
 /* Reply Comment */
@@ -1055,6 +1085,27 @@ a:hover {
   margin-left: calc(40px + var(--space-3));
   padding-left: var(--space-5);
   border-left: 2px solid var(--color-border-light);
+  margin-top: var(--space-4);
+}
+
+.comment__header--reply {
+  gap: var(--space-2) !important;
+}
+
+.comment__avatar--reply {
+  width: 28px !important;
+  height: 28px !important;
+  flex-shrink: 0;
+  margin-right: -8px;
+}
+
+/* Reply comment content alignment */
+.comment--reply .comment__content {
+  margin-left: calc(28px + var(--space-2));
+}
+
+.comment--reply .comment__actions {
+  margin-left: calc(28px + var(--space-2));
 }
 
 /* ============================================
@@ -1968,5 +2019,17 @@ iframe {
   .toast {
     max-width: 90%;
     min-width: auto;
+  }
+}
+
+/* Animation for highlighting comments */
+@keyframes pulse {
+  0%, 100% {
+    background-color: var(--color-surface);
+    box-shadow: 0 0 0 0 rgba(26, 54, 93, 0.2);
+  }
+  50% {
+    background-color: rgba(212, 183, 106, 0.1);
+    box-shadow: 0 0 0 8px rgba(26, 54, 93, 0);
   }
 }
