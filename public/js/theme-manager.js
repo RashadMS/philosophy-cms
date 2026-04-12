@@ -23,6 +23,18 @@ class ThemeManager {
     const savedTheme = this.getSavedTheme();
     const preferredTheme = savedTheme || this.getSystemTheme();
     this.setTheme(preferredTheme);
+    
+    // Listen for theme changes from other tabs/windows
+    window.addEventListener('storage', (e) => {
+      if (e.key === this.STORAGE_KEY && e.newValue) {
+        const currentTheme = this.getCurrentTheme();
+        if (currentTheme !== e.newValue) {
+          // Set theme from other tab and dispatch event for listeners
+          document.documentElement.setAttribute(this.THEME_ATTRIBUTE, e.newValue);
+          this.dispatch('theme-changed', { theme: e.newValue });
+        }
+      }
+    });
   }
 
   /**

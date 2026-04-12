@@ -21,54 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize navigation toggle (mobile)
   initMobileNav();
   
-  // Initialize admin theme toggle
-  initAdminThemeToggle();
-  
   // Load content based on current page
   initPage();
 });
-
-// ============================================
-// Theme Toggle (Admin)
-// ============================================
-
-function initAdminThemeToggle() {
-  const adminToggle = document.getElementById('adminThemeToggle');
-  if (!adminToggle) return;
-  
-  adminToggle.addEventListener('click', () => {
-    if (typeof themeManager !== 'undefined') {
-      themeManager.toggle();
-      updateAdminThemeToggleIcon();
-    }
-  });
-  
-  updateAdminThemeToggleIcon();
-}
-
-function updateAdminThemeToggleIcon() {
-  const button = document.getElementById('adminThemeToggle');
-  if (!button || typeof themeManager === 'undefined') return;
-  
-  const isDark = themeManager.getCurrentTheme() === 'dark';
-  const moonIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                     </svg>`;
-  const sunIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="5"></circle>
-                      <line x1="12" y1="1" x2="12" y2="3"></line>
-                      <line x1="12" y1="21" x2="12" y2="23"></line>
-                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                      <line x1="1" y1="12" x2="3" y2="12"></line>
-                      <line x1="21" y1="12" x2="23" y2="12"></line>
-                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>`;
-  
-  button.querySelector('svg').outerHTML = isDark ? moonIcon : sunIcon;
-  button.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-}
 
 // ============================================
 // Authentication
@@ -91,6 +46,9 @@ function checkAuth() {
   } else {
     updateAuthUI(false);
   }
+  
+  // Dispatch event for other components to update
+  document.dispatchEvent(new Event('authStatusChanged'));
 }
 
 /**
@@ -113,10 +71,6 @@ function updateAuthUI(isLoggedIn) {
           🔔
           <span id="notificationBadge" style="position: absolute; top: 0; right: 0; background: var(--color-error); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; display: none;"></span>
         </a>
-        ${currentUser.role === 'Admin' ? `
-          <a href="/admin" class="btn btn--ghost btn--sm">لوحة التحكم</a>
-        ` : ''}
-        <button class="btn btn--ghost btn--sm" onclick="logout()">تسجيل الخروج</button>
       </div>
     `;
   } else {
@@ -178,7 +132,17 @@ function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   currentUser = null;
-  window.location.href = '/';
+  
+  // Update UI immediately
+  updateAuthUI(false);
+  
+  // Dispatch event before redirect
+  document.dispatchEvent(new Event('authStatusChanged'));
+  
+  // Redirect to home page
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 100);
 }
 
 /**

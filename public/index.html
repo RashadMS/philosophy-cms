@@ -32,7 +32,7 @@
           <li><a href="/" class="nav__link nav__link--active">الرئيسية</a></li>
           <li><a href="#articles" class="nav__link" data-category="Article">المقالات</a></li>
           <li><a href="#research" class="nav__link" data-category="Research">الأبحاث</a></li>
-          <li><a href="#quotes" class="nav__link" data-category="Quote">الحكم</a></li>
+          <li><a href="#quotes" class="nav__link" data-category="Quote">الاقتباسات</a></li>
         </ul>
         
         <div class="nav__auth" id="navAuth">
@@ -52,7 +52,7 @@
       </p>
       <div class="hero__actions">
         <a href="#articles" class="btn btn--primary btn--lg">استكشف المقالات</a>
-        <a href="#quotes" class="btn btn--secondary btn--lg">تصفح الحِكَم</a>
+        <a href="#quotes" class="btn btn--secondary btn--lg">تصفح الاقتباسات</a>
       </div>
     </div>
   </section>
@@ -147,7 +147,7 @@
         <ul class="footer__links">
           <li><a href="#articles" class="footer__link">المقالات</a></li>
           <li><a href="#research" class="footer__link">الأبحاث</a></li>
-          <li><a href="#quotes" class="footer__link">الحِكَم</a></li>
+          <li><a href="#quotes" class="footer__link">الاقتباسات</a></li>
         </ul>
       </div>
       
@@ -179,11 +179,61 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <a href="/#articles" data-category="Article" title="المقالات">
+      📄
+      <span>المقالات</span>
+    </a>
+    <a href="/#research" data-category="Research" title="الأبحاث">
+      📖
+      <span>الأبحاث</span>
+    </a>
+    <a href="/#quotes" data-category="Quote" title="الاقتباسات">
+      💭
+      <span>الاقتباسات</span>
+    </a>
+    <a href="/admin" title="لوحة التحكم" id="mobileAdminLink" style="display: none;">
+      ⚙️
+      <span>التحكم</span>
+    </a>
+    <button id="mobileLogout" onclick="logout()" title="تسجيل الخروج" style="display: none;">
+      🚪
+      <span>خروج</span>
+    </button>
+  </nav>
+
   <!-- Scripts -->
   <script src="/js/theme-manager.js"></script>
   <script src="/js/app.js"></script>
   <script>
       document.getElementById('current-year').textContent = new Date().getFullYear();
+      
+      // Show/hide logout button based on auth status
+      function updateMobileNav() {
+        const logoutBtn = document.getElementById('mobileLogout');
+        const adminLink = document.getElementById('mobileAdminLink');
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        
+        if (logoutBtn) {
+          logoutBtn.style.display = token ? 'flex' : 'none';
+        }
+        
+        if (adminLink && token && user) {
+          try {
+            const userData = JSON.parse(user);
+            adminLink.style.display = userData.role === 'Admin' ? 'flex' : 'none';
+          } catch (e) {
+            adminLink.style.display = 'none';
+          }
+        }
+      }
+      
+      // Update when page loads
+      updateMobileNav();
+      // Update when auth changes
+      document.addEventListener('authStatusChanged', updateMobileNav);
     </script>
 </body>
 </html>

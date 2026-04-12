@@ -574,5 +574,57 @@
     // Initialize
     loadPost();
   </script>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <a href="/#articles" data-category="Article" title="المقالات">
+      📄
+      <span>المقالات</span>
+    </a>
+    <a href="/#research" data-category="Research" title="الأبحاث">
+      📖
+      <span>الأبحاث</span>
+    </a>
+    <a href="/#quotes" data-category="Quote" title="الحكم">
+      💭
+      <span>الحكم</span>
+    </a>
+    <a href="/admin" title="لوحة التحكم" id="mobileAdminLink" style="display: none;">
+      ⚙️
+      <span>التحكم</span>
+    </a>
+    <button id="mobileLogout" onclick="logout()" title="تسجيل الخروج" style="display: none;">
+      🚪
+      <span>خروج</span>
+    </button>
+  </nav>
+
+  <script>
+    // Show/hide logout button based on auth status
+    function updateMobileNav() {
+      const logoutBtn = document.getElementById('mobileLogout');
+      const adminLink = document.getElementById('mobileAdminLink');
+      const user = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      
+      if (logoutBtn) {
+        logoutBtn.style.display = token ? 'flex' : 'none';
+      }
+      
+      if (adminLink && token && user) {
+        try {
+          const userData = JSON.parse(user);
+          adminLink.style.display = userData.role === 'Admin' ? 'flex' : 'none';
+        } catch (e) {
+          adminLink.style.display = 'none';
+        }
+      }
+    }
+    
+    // Update when page loads
+    updateMobileNav();
+    // Update when auth changes
+    document.addEventListener('authStatusChanged', updateMobileNav);
+  </script>
 </body>
 </html>
