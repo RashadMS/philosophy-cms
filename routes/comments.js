@@ -75,7 +75,6 @@ router.get('/post/:postId', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get comments error:', error);
     res.status(500).json({ message: 'Failed to fetch comments.' });
   }
 });
@@ -127,7 +126,7 @@ router.post('/', authenticate, async (req, res) => {
       const parentComment = await Comment.findById(parentCommentId).populate('author');
       if (parentComment && parentComment.author._id.toString() !== req.user._id.toString()) {
         try {
-          const notif = await Notification.create({
+          await Notification.create({
             recipient: parentComment.author._id,
             actor: req.user._id,
             type: 'comment',
@@ -135,18 +134,16 @@ router.post('/', authenticate, async (req, res) => {
             comment: comment._id,
             message: `رد على تعليقك على "${comment.post.title}"`
           });
-          console.log('✅ Reply notification created:', notif._id, 'for', parentComment.author._id);
         } catch (notifError) {
-          console.error('❌ Error creating reply notification:', notifError);
+          // Notification creation failed, but continue
         }
       }
     } else {
       // If this is a top-level comment, notify the post author
       try {
         await createCommentNotification(comment);
-        console.log('✅ Comment notification created for post:', comment.post._id);
       } catch (notifError) {
-        console.error('❌ Error creating comment notification:', notifError);
+        // Notification creation failed, but continue
       }
     }
 
@@ -155,8 +152,6 @@ router.post('/', authenticate, async (req, res) => {
       comment
     });
   } catch (error) {
-    console.error('Create comment error:', error);
-    
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ message: messages.join(' ') });
@@ -201,7 +196,6 @@ router.put('/:id', authenticate, async (req, res) => {
       comment
     });
   } catch (error) {
-    console.error('Update comment error:', error);
     
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Comment not found.' });
@@ -239,7 +233,6 @@ router.delete('/:id', authenticate, async (req, res) => {
 
     res.json({ message: 'Comment deleted successfully.' });
   } catch (error) {
-    console.error('Delete comment error:', error);
     
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Comment not found.' });
@@ -300,7 +293,6 @@ router.post('/:id/like', authenticate, async (req, res) => {
       likeCount: comment.likes.length
     });
   } catch (error) {
-    console.error('Like comment error:', error);
     
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Comment not found.' });

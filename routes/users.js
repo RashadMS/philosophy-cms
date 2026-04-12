@@ -48,7 +48,6 @@ router.get('/', authenticate, requireAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get users error:', error);
     res.status(500).json({ message: 'Failed to fetch users.' });
   }
 });
@@ -67,8 +66,6 @@ router.get('/:id', authenticate, requireAdmin, async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error('Get user error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'User not found.' });
     }
@@ -109,8 +106,6 @@ router.put('/:id/role', authenticate, requireAdmin, async (req, res) => {
       user
     });
   } catch (error) {
-    console.error('Update user role error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'User not found.' });
     }
@@ -138,64 +133,11 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
 
     res.json({ message: 'User deleted successfully.' });
   } catch (error) {
-    console.error('Delete user error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'User not found.' });
     }
     
     res.status(500).json({ message: 'Failed to delete user.' });
-  }
-});
-
-/**
- * POST /api/users/create-admin
- * Create admin user (for initial setup - should be disabled in production)
- */
-router.post('/create-admin', async (req, res) => {
-  try {
-    const { name, email, password, setupKey } = req.body;
-
-    // Simple setup key verification (change this in production)
-    const SETUP_KEY = process.env.ADMIN_SETUP_KEY || 'initial-admin-setup-key';
-    
-    if (setupKey !== SETUP_KEY) {
-      return res.status(403).json({ message: 'Invalid setup key.' });
-    }
-
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ role: 'Admin' });
-    if (existingAdmin) {
-      return res.status(400).json({ message: 'An admin user already exists.' });
-    }
-
-    const admin = new User({
-      name,
-      email,
-      password,
-      role: 'Admin'
-    });
-
-    await admin.save();
-
-    res.status(201).json({
-      message: 'Admin user created successfully.',
-      user: {
-        id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role
-      }
-    });
-  } catch (error) {
-    console.error('Create admin error:', error);
-    
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ message: messages.join(' ') });
-    }
-    
-    res.status(500).json({ message: 'Failed to create admin.' });
   }
 });
 
@@ -213,7 +155,6 @@ router.get('/profile/me', authenticate, async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error('Get profile error:', error);
     res.status(500).json({ message: 'Failed to fetch profile.' });
   }
 });
@@ -266,7 +207,6 @@ router.put('/profile/me', authenticate, async (req, res) => {
       user
     });
   } catch (error) {
-    console.error('Update profile error:', error);
     
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
@@ -319,7 +259,6 @@ router.get('/me/comments', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get user comments error:', error);
     res.status(500).json({ message: 'Failed to fetch comments.' });
   }
 });
@@ -356,7 +295,6 @@ router.get('/me/likes', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get user likes error:', error);
     res.status(500).json({ message: 'Failed to fetch liked posts.' });
   }
 });

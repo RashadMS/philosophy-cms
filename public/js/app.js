@@ -79,6 +79,7 @@ function updateAuthUI(isLoggedIn) {
           🔔
           <span id="notificationBadge" style="position: absolute; top: -5px; right: -5px; background: var(--color-error); color: white; border-radius: 50%; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; border: 2px solid white;"></span>
         </a>
+        <button class="btn btn--ghost btn--sm logout-desktop" onclick="logout()" title="تسجيل الخروج" style="display: flex; align-items: center; gap: 0.5rem;">تسجيل الخروج</button>
       </div>
     `;
   } else {
@@ -129,7 +130,7 @@ async function loadNotificationCount() {
       }
     }
   } catch (error) {
-    console.error('Error loading notification count:', error);
+    // Failed to load notification count
   }
 }
 
@@ -252,7 +253,6 @@ async function loadFeaturedPosts() {
       }
     }
   } catch (error) {
-    console.error('Error loading featured posts:', error);
     container.innerHTML = '<p class="text-center">فشل تحميل المقالات</p>';
   }
 }
@@ -292,7 +292,7 @@ async function loadCategoryPosts(category, containerId, paginationId, page = 1) 
       `;
     }
   } catch (error) {
-    console.error(`Error loading ${category} posts:`, error);
+
     container.innerHTML = '<p class="text-center">فشل تحميل المحتوى</p>';
   }
 }

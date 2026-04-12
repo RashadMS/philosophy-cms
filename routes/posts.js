@@ -79,7 +79,6 @@ router.get('/', optionalAuth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get posts error:', error);
     res.status(500).json({ message: 'Failed to fetch posts.' });
   }
 });
@@ -110,7 +109,6 @@ router.get('/:id', optionalAuth, async (req, res) => {
     if (clientSessionId) {
       post.views += 1;
       await post.save();
-      console.log(`✓ View incremented for post ${post._id}: ${post.views} views`);
     }
 
     // Get comments for this post
@@ -130,8 +128,6 @@ router.get('/:id', optionalAuth, async (req, res) => {
 
     res.json({ post: postObj });
   } catch (error) {
-    console.error('Get post error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Post not found.' });
     }
@@ -191,8 +187,6 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
       post
     });
   } catch (error) {
-    console.error('Create post error:', error);
-    
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ message: messages.join(' ') });
@@ -246,8 +240,6 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
       post
     });
   } catch (error) {
-    console.error('Update post error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Post not found.' });
     }
@@ -281,8 +273,6 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Post deleted successfully.' });
   } catch (error) {
-    console.error('Delete post error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Post not found.' });
     }
@@ -310,14 +300,6 @@ router.post('/:id/like', authenticate, async (req, res) => {
       // Add like
       post.likes.push(userId);
       
-      console.log('📝 Like action:', {
-        userId: userId.toString(),
-        postAuthor: post.author.toString(),
-        postId: post._id.toString(),
-        postCategory: post.category,
-        postTitle: post.title
-      });
-      
       // Create notification for post author only if not the user themselves
       if (post.author.toString() !== userId.toString()) {
         const categoryLabel = {
@@ -327,24 +309,16 @@ router.post('/:id/like', authenticate, async (req, res) => {
         }[post.category] || 'المنشور';
         
         try {
-          const notif = await Notification.create({
+          await Notification.create({
             recipient: post.author,
             actor: userId,
             type: 'like',
             post: post._id,
             message: `أعجب بـ${categoryLabel}: "${post.title}"`
           });
-          console.log('✅ Like notification created:', {
-            notificationId: notif._id.toString(),
-            recipientId: notif.recipient.toString(),
-            actorId: notif.actor.toString(),
-            postId: notif.post.toString()
-          });
         } catch (notifError) {
-          console.error('❌ Error creating like notification:', notifError);
+          // Notification creation failed, but continue with post like
         }
-      } else {
-        console.log('⚠️  Skipping notification: User cannot like their own post');
       }
     } else {
       // Remove like
@@ -359,7 +333,7 @@ router.post('/:id/like', authenticate, async (req, res) => {
           post: post._id
         });
       } catch (delError) {
-        console.error('❌ Error deleting like notification:', delError);
+        // Continue even if notification deletion fails
       }
     }
 
@@ -371,8 +345,6 @@ router.post('/:id/like', authenticate, async (req, res) => {
       likeCount: post.likes.length
     });
   } catch (error) {
-    console.error('Like post error:', error);
-    
     if (error.name === 'CastError') {
       return res.status(404).json({ message: 'Post not found.' });
     }
@@ -414,16 +386,6 @@ router.get('/admin/stats', authenticate, requireAdmin, async (req, res) => {
     
     const totalComments = await Comment.countDocuments({});
 
-    console.log('Stats calculation:', {
-      totalPosts,
-      articles,
-      research,
-      quotes,
-      totalLikes: likesData[0]?.total || 0,
-      totalViews: viewsData[0]?.total || 0,
-      totalComments
-    });
-
     res.json({
       stats: {
         totalPosts,
@@ -436,7 +398,6 @@ router.get('/admin/stats', authenticate, requireAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Admin stats error:', error);
     res.status(500).json({ message: 'Failed to fetch stats.' });
   }
 });
@@ -480,7 +441,6 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Admin get posts error:', error);
     res.status(500).json({ message: 'Failed to fetch posts.' });
   }
 })

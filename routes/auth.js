@@ -57,7 +57,6 @@ router.post('/register', async (req, res) => {
     try {
       await sendVerificationEmail(email, token, name);
     } catch (emailError) {
-      console.error('Email sending failed:', emailError);
       // Delete pending user if email sending failed
       await PendingUser.deleteOne({ _id: pendingUser._id });
       return res.status(500).json({ 
@@ -71,8 +70,6 @@ router.post('/register', async (req, res) => {
       requiresVerification: true
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    
     // Handle validation errors
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
@@ -143,7 +140,6 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
     res.status(500).json({ message: 'Login failed. Please try again.' });
   }
 });
@@ -214,7 +210,6 @@ router.get('/verify-email', async (req, res) => {
     try {
       await sendWelcomeEmail(newUser.email, newUser.name);
     } catch (emailError) {
-      console.error('Welcome email failed:', emailError);
       // Don't fail - verification was successful
     }
 
@@ -224,7 +219,6 @@ router.get('/verify-email', async (req, res) => {
       email: newUser.email
     });
   } catch (error) {
-    console.error('Email verification error:', error);
     res.status(500).json({ message: 'Email verification failed. Please try again.' });
   }
 });
@@ -268,7 +262,6 @@ router.post('/resend-verification', async (req, res) => {
     try {
       await sendVerificationEmail(email, token, pendingUser.name);
     } catch (emailError) {
-      console.error('Email sending failed:', emailError);
       return res.status(500).json({ 
         message: 'Failed to send verification email. Please try again later.' 
       });
@@ -279,7 +272,6 @@ router.post('/resend-verification', async (req, res) => {
       email: pendingUser.email
     });
   } catch (error) {
-    console.error('Resend verification error:', error);
     res.status(500).json({ message: 'Failed to resend verification email.' });
   }
 });
@@ -302,7 +294,6 @@ router.get('/me', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Profile fetch error:', error);
     res.status(500).json({ message: 'Failed to fetch profile.' });
   }
 });
@@ -338,8 +329,6 @@ router.put('/me', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Profile update error:', error);
-    
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ message: messages.join(' ') });
@@ -380,69 +369,7 @@ router.put('/password', authenticate, async (req, res) => {
 
     res.json({ message: 'Password changed successfully.' });
   } catch (error) {
-    console.error('Password change error:', error);
     res.status(500).json({ message: 'Failed to change password.' });
-  }
-});
-
-/**
- * GET /api/auth/test-email?email=test@example.com
- * Test email configuration and send a test email
- */
-router.get('/test-email', async (req, res) => {
-  try {
-    const testEmail = req.query.email || 'test@example.com';
-    
-    const config = {
-      brevoApiKeySet: !!process.env.BREVO_API_KEY,
-      emailFromSet: !!process.env.EMAIL_FROM,
-      emailFrom: process.env.EMAIL_FROM || 'NOT SET',
-      appUrl: process.env.APP_URL || 'NOT SET',
-      nodeEnv: process.env.NODE_ENV || 'development'
-    };
-
-    console.log('Email Configuration Check:', config);
-
-    if (!config.brevoApiKeySet) {
-      return res.status(400).json({
-        error: 'BREVO_API_KEY is not configured',
-        config
-      });
-    }
-
-    if (!config.emailFromSet) {
-      return res.status(400).json({
-        error: 'EMAIL_FROM is not configured',
-        config
-      });
-    }
-
-    // Try to send a test email
-    try {
-      await sendVerificationEmail(testEmail, 'TEST_TOKEN_12345', 'Test User');
-      
-      return res.json({
-        success: true,
-        message: 'Test email sent successfully!',
-        testEmail,
-        config,
-        note: 'Check your email inbox. If you didn\'t receive it, the sender email may not be verified in Brevo.'
-      });
-    } catch (emailError) {
-      console.error('Test email error:', emailError);
-      return res.status(500).json({
-        error: 'Failed to send test email',
-        message: emailError.message,
-        config,
-        fullError: emailError.toString()
-      });
-    }
-  } catch (error) {
-    console.error('Test email endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Test endpoint failed',
-      message: error.message 
-    });
   }
 });
 

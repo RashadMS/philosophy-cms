@@ -403,6 +403,11 @@ a:hover {
   .admin-nav-link {
     display: none !important;
   }
+
+  /* Hide logout button on mobile */
+  .logout-desktop {
+    display: none !important;
+  }
   
   .nav__auth .btn {
     display: inline-flex !important;
@@ -412,6 +417,11 @@ a:hover {
     padding: var(--space-2) var(--space-3);
     height: auto;
     min-height: 32px;
+  }
+
+  .nav__auth .admin-nav-link,
+  .nav__auth .logout-desktop {
+    display: none !important;
   }
   
   .nav__user {
@@ -580,6 +590,17 @@ a:hover {
 /* Desktop - Show admin link in top nav */
 @media (min-width: 769px) {
   .admin-nav-link {
+    display: flex !important;
+  }
+}
+
+/* Logout button - Desktop only */
+.logout-desktop {
+  display: none !important;
+}
+
+@media (min-width: 769px) {
+  .logout-desktop {
     display: flex !important;
   }
 }

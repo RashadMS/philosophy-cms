@@ -44,7 +44,6 @@ class ThemeManager {
     try {
       return localStorage.getItem(this.STORAGE_KEY);
     } catch (e) {
-      console.warn('localStorage not available:', e);
       return null;
     }
   }
@@ -74,7 +73,7 @@ class ThemeManager {
     try {
       localStorage.setItem(this.STORAGE_KEY, theme);
     } catch (e) {
-      console.warn('Could not save theme preference:', e);
+      // Continue silently if localStorage not available
     }
 
     // Dispatch custom event for any listeners

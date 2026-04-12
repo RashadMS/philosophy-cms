@@ -772,8 +772,6 @@
 
                 const { comments, pagination } = await response.json();
                 currentCommentsPage = pagination.current;
-                
-                console.log('Comments data received:', comments);
 
                 if (comments.length === 0) {
                     document.getElementById('commentsContainer').innerHTML = `
@@ -787,7 +785,6 @@
 
                 let html = '<div class="comments-list">';
                 comments.forEach(comment => {
-                    console.log('Processing comment:', comment, 'Author:', comment.author);
                     
                     const date = new Date(comment.createdAt).toLocaleDateString('ar-SA', {
                         year: 'numeric',

@@ -355,7 +355,6 @@
         renderPostsTable(posts.slice(0, 5), 'recentPostsTable');
         
       } catch (error) {
-        console.error('Dashboard load error:', error);
         showToast('Failed to load dashboard data', 'error');
       }
     }
@@ -384,7 +383,6 @@
         renderPagination(data.pagination, 'postsPagination', loadPosts);
         
       } catch (error) {
-        console.error('Posts load error:', error);
         showToast('Failed to load posts', 'error');
       }
     }
@@ -480,7 +478,6 @@
         renderPagination(data.pagination, 'usersPagination', loadUsers);
         
       } catch (error) {
-        console.error('Users load error:', error);
         showToast('Failed to load users', 'error');
       }
     }
@@ -567,7 +564,6 @@
         toggleCategoryFields();
         
       } catch (error) {
-        console.error('Edit post error:', error);
         showToast('Failed to load post', 'error');
       }
     }

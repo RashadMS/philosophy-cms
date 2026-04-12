@@ -22,28 +22,18 @@ router.use(authenticate);
 router.get('/', async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log('🔔 [Notification] User requesting notifications:', userId.toString());
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Simple find without populate first
+    // Get user notifications
     const notifications = await Notification.find({ recipient: userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean()
       .exec();
-
-    console.log('🔔 [Notification] Query:', { recipient: userId.toString() });
-    console.log('🔔 [Notification] Found:', notifications.length, 'notifications');
-    
-    if (notifications.length > 0) {
-      notifications.forEach(n => {
-        console.log('   - Notification:', { recipient: n.recipient, actor: n.actor, type: n.type, message: n.message });
-      });
-    }
 
     // Populate in parallel with Promise.all for better performance
     const populatedNotifications = await Promise.all(
@@ -68,24 +58,12 @@ router.get('/', async (req, res) => {
             comment: comment || null
           };
         } catch (error) {
-          console.error('🔔 [Notification] Populate error:', error.message);
           return notif;
         }
       })
     );
 
     const total = await Notification.countDocuments({ recipient: userId });
-    
-    console.log('🔔 [Notification] Total notifications for this user:', total);
-    
-    // Check all notifications in database for debugging
-    const allNotifs = await Notification.find({}).select('recipient actor post message type').lean().limit(5);
-    if (allNotifs.length > 0) {
-      console.log('🔔 [Database] Latest 5 notifications in DB:');
-      allNotifs.forEach(n => {
-        console.log(`   - Recipient: ${n.recipient}, Actor: ${n.actor}, Type: ${n.type}, Message: ${n.message}`);
-      });
-    }
 
     res.json({
       notifications: populatedNotifications,
@@ -97,8 +75,7 @@ router.get('/', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('🔔 [Notification] Error:', error);
-    res.status(500).json({ message: 'Failed to load notifications', error: error.message });
+    res.status(500).json({ message: 'Failed to load notifications' });
   }
 });
 

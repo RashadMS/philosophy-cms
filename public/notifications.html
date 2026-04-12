@@ -403,11 +403,9 @@
                     throw fetchError;
                 }
             } catch (error) {
-                console.error('Error loading notifications:', error);
                 document.getElementById('notificationsContainer').innerHTML = `
                     <div class="empty-notifications">
                         <p>خطأ في تحميل الإشعارات</p>
-                        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-top: 0.5rem;">${error.message}</p>
                     </div>
                 `;
             }
@@ -453,7 +451,6 @@
             `;
                 }).join('');
             } catch (error) {
-                console.error('Error rendering notifications:', error);
                 container.innerHTML = `
                     <div class="empty-notifications">
                         <p>خطأ في عرض الإشعارات</p>
@@ -511,7 +508,7 @@
                 }
                 window.location.href = url;
             } catch (error) {
-                console.error('Error:', error);
+                // Continue silently
             }
         }
 
@@ -526,7 +523,7 @@
                 });
                 loadNotifications(currentPage);
             } catch (error) {
-                console.error('Error:', error);
+                // Continue silently
             }
         }
 
@@ -551,7 +548,7 @@
                     if (badge) badge.style.display = 'none';
                 }
             } catch (error) {
-                console.error('Error deleting notifications:', error);
+                // Continue silently
             }
         }
 
