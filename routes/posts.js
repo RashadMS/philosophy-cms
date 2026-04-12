@@ -483,38 +483,6 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res) => {
     console.error('Admin get posts error:', error);
     res.status(500).json({ message: 'Failed to fetch posts.' });
   }
-});
-
-/**
- * PUT /api/posts/admin/update-all-author
- * Update all posts author to Rashad (Admin only) - ADMIN MAINTENANCE ENDPOINT
- */
-router.put('/admin/update-all-author', authenticate, requireAdmin, async (req, res) => {
-  try {
-    const NEW_AUTHOR_ID = '69daf883f7c5cf26fd6952e5';
-    const NEW_AUTHOR_NAME = 'رشاد';
-
-    const result = await Post.updateMany(
-      {}, // Match all documents
-      {
-        $set: {
-          author: NEW_AUTHOR_ID,
-          authorName: NEW_AUTHOR_NAME
-        }
-      }
-    );
-
-    console.log(`✓ تم تحديث ${result.modifiedCount} مقالة/اقتباس`);
-
-    res.json({
-      message: 'تم تحديث جميع المقالات بنجاح',
-      modifiedCount: result.modifiedCount,
-      matchedCount: result.matchedCount
-    });
-  } catch (error) {
-    console.error('Update all author error:', error);
-    res.status(500).json({ message: 'Failed to update posts author.' });
-  }
-});
+})
 
 export default router;
