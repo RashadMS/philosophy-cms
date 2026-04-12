@@ -6,6 +6,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -27,9 +29,34 @@ const app = express();
 // سيحاول استخدام المنفذ المتاح من الاستضافة، أو 3000
 const PORT = process.env.PORT || 3000;
 
+// ==============================================
+// Security Middleware - Configure before routes
+// ==============================================
 
-// Middleware
-app.use(cors());
+// 1. Helmet.js - Secures HTTP headers against various attacks
+app.use(helmet());
+
+// 2. CORS - Configure to allow only your production frontend
+const corsOptions = {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Replace with your production URL
+    credentials: true, // Allow cookies and credentials
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+
+// 3. Rate Limiting - Limit each IP to 100 requests per 15 minutes
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use(limiter);
+
+// Standard Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
